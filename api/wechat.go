@@ -15,7 +15,7 @@ func WxLogin(c *gin.Context) {
 	}
 	openid := service.CodeToSession(code)
 	if openid == "" {
-		c.JSON(http.StatusBadRequest, e.ErrResp(e.ErrorGetCaptchaFailed))
+		c.JSON(http.StatusOK, e.ErrResp(e.ErrorGetCaptchaFailed))
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"openid": openid})

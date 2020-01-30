@@ -71,7 +71,7 @@ func LoginAndGetCourse(openid, username, pwd, cap string) map[string]interface{}
 		log.Printf("登录失败")
 		return nil
 	}
-	stu := model.FindStudentByAccount(username)
+	stu, _ := model.FindStudentByAccount(username)
 	nameDpt := make(map[string]string)
 
 	if stu == nil {
@@ -92,7 +92,7 @@ func LoginAndGetCourse(openid, username, pwd, cap string) map[string]interface{}
 		return nil
 	}
 	cidList := getCourseList(cli)
-	courseDetail, timeTable := getCourseDetailAndTimeTable(cidList)
+	courseDetail, timeTable := GetCourseDetailAndTimeTable(cidList)
 	return map[string]interface{}{
 		"name": name,
 		"dpt": dpt,
@@ -201,21 +201,26 @@ func getCourseList(cli *req.Req) []int32 {
 	return cidList
 }
 
-func getCourseDetailAndTimeTable(cidList []int32) (map[int32]interface{}, [21][8][]int32) {
-	var table [21][8][]int32
+func GetCourseDetailAndTimeTable(cidList []int32) (map[int32]interface{}, [21][8][]interface{}) {
+	var table [21][8][]interface{}
+	for i := range table {
+		for j := range table[i] {
+			table[i][j] = []interface{}{}
+		}
+	}
 	courseDetail := make(map[int32]interface{})
-	courses := model.FindCoursesByCidList(cidList)
+	courses, _ := model.FindCoursesByCidList(cidList)
 	for _, course := range courses {
 		courseMap := course.ToMap()
 		timePlace := model.FindTimePlaceByCid(course.Cid)
 		courseMap["time_place"] = timePlace
 		courseDetail[course.Cid] = courseMap
 		for _, tp := range timePlace {
-			weekDay := int(tp.WeekDay)
+			weekDay := int(tp.Weekday)
 			weekNoList := strings.Split(tp.Weekno, ",")
 			for _, wn := range weekNoList {
 				weekNo, _ := strconv.Atoi(wn)
-				table[weekNo][weekDay] = append(table[weekNo][weekDay], tp.Cid)
+				table[weekNo][weekDay] = append(table[weekNo][weekDay], tp)
 			}
 		}
 	}

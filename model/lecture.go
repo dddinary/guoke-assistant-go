@@ -1,12 +1,12 @@
 package model
 
 import (
-	"log"
+	"errors"
 	"time"
 )
 
 type Lecture struct {
-	Id 			uint		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
 	Lid			int32		`json:"lid" gorm:"type:int"`
 	Name		string		`json:"name" gorm:"type:varchar(255)"`
 	Category	int32		`json:"category" gorm:"type:int"`
@@ -17,6 +17,8 @@ type Lecture struct {
 	Desc		string		`json:"desc" gorm:"type:text"`
 	Pic			string		`json:"pic" gorm:"type:varchar(255)"`
 }
+
+var ErrorLectureHasExist = errors.New("该lecture已存在")
 
 func GetComingLectures() map[string][]Lecture {
 	var hum, sci []Lecture
@@ -31,13 +33,31 @@ func GetComingLectures() map[string][]Lecture {
 }
 
 func AddLecture(lid int32, name string, category int32, dpt string, start, end time.Time, venue, desc, pic string) error {
+	var err error
 	trx := db.Begin()
-	defer trx.Commit()
+	defer func() {
+		if r := recover(); r != nil {
+			trx.Rollback()
+		}
+	}()
 
-	lecture := Lecture{Lid:lid, Name:name, Category:category, Dpt:dpt,
+	lecture := Lecture{}
+	if err = trx.First(&lecture, lid).Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if lecture.Id == lid {
+		trx.Rollback()
+		return ErrorLectureHasExist
+	}
+	lecture = Lecture{Lid:lid, Name:name, Category:category, Dpt:dpt,
 		Start:start, End:end, Venue:venue, Desc:desc, Pic:pic}
-	if err := trx.Create(&lecture).Error; err != nil {
-		log.Println(err)
+	if err = trx.Create(&lecture).Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if err = trx.Commit().Error; err != nil {
+		trx.Rollback()
 		return err
 	}
 	return nil

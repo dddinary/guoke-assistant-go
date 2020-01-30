@@ -2,12 +2,12 @@ package model
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
-	"log"
 )
 
 type Group struct {
-	Id 			uint		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
 	Account		string		`json:"account" gorm:"type:varchar(255)"`
 	Password	string		`json:"password" gorm:"type:varchar(255)"`
 	Name		string		`json:"name" gorm:"type:varchar(255)"`
@@ -15,61 +15,76 @@ type Group struct {
 	Status		int32		`json:"status" gorm:"type:int"`
 }
 
-func FindGroupById(cid int32) *Group {
-	trx := db.Begin()
-	defer trx.Commit()
+var ErrorGroupNotFound = errors.New("没有找到相应的group")
+var ErrorGroupHasExist = errors.New("已经存在该group")
 
-	group := new(Group)
-	trx.Where("id = ?", cid).First(group)
-	if group.Id == 0 {
-		return nil
+func FindGroupById(cid int32) (*Group, error) {
+	var err error
+	group := Group{}
+	if err = db.Where("id = ?", cid).First(&group).Error; err != nil {
+		return nil, err
 	}
-	return group
+	if group.Id == 0 {
+		return nil, ErrorGroupNotFound
+	}
+	return &group, nil
 }
 
-func FindGroupByAccount(account string) *Group {
-	trx := db.Begin()
-	defer trx.Commit()
-
-	group := new(Group)
-	trx.Where("account = ?", account).First(group)
-	if group.Id == 0 {
-		return nil
+func FindGroupByAccount(account string) (*Group, error) {
+	var err error
+	group := Group{}
+	if err = db.Where("account = ?", account).First(&group).Error; err != nil {
+		return nil, err
 	}
-	return group
+	if group.Id == 0 {
+		return nil, ErrorGroupNotFound
+	}
+	return &group, nil
 }
 
-func AddGroup(account, password, name, avatar string) bool {
+func AddGroup(account, password, name, avatar string) error {
+	var err error
 	trx := db.Begin()
-	defer trx.Commit()
+	defer func() {
+		if r := recover(); r != nil {
+			trx.Rollback()
+		}
+	}()
 
 	group := Group{}
-	trx.Set("gorm:query_option", "FOR UPDATE").
-		Where("account = ?", account).First(&group)
+	if err = trx.Set("gorm:query_option", "FOR UPDATE").
+		Where("account = ?", account).First(&group).Error; err != nil {
+			trx.Rollback()
+			return err
+	}
 	if group.Id != 0 {
-		return false
+		trx.Rollback()
+		return ErrorGroupHasExist
 	}
 
 	hash := md5.New()
 	hash.Write([]byte(password))
 	hashedPwd := fmt.Sprintf("%x", hash.Sum(nil))
 	group = Group{Account:account, Password:hashedPwd, Name:name, Avatar:avatar}
-	if err := trx.Create(&group).Error; err != nil {
-		log.Println(err)
-		return false
+	if err = trx.Create(&group).Error; err != nil {
+		trx.Rollback()
+		return err
 	}
-	return true
+	if err = trx.Commit().Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	return nil
 }
 
 func CheckGroupPwd(account, password string) bool {
-	trx := db.Begin()
-	defer trx.Commit()
-
 	hash := md5.New()
 	hash.Write([]byte(password))
 	hashedPwd := fmt.Sprintf("%x", hash.Sum(nil))
 	group := Group{}
-	trx.Where("account = ?", account).First(&group)
+	if err := db.Where("account = ?", account).First(&group).Error; err != nil {
+		return false
+	}
 	if group.Id != 0 && group.Password == hashedPwd {
 		return true
 	}

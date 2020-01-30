@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"strconv"
 )
 
@@ -20,25 +21,27 @@ type Course struct {
 	Assistant	string	`json:"assistant" gorm:"type:varchar(255)"`
 }
 
-func FindCourseByCid(cid int32) *Course {
-	trx := db.Begin()
-	defer trx.Commit()
+var ErrorCourseNotFound = errors.New("没有找到相应的课程")
 
-	course := new(Course)
-	trx.Where("cid = ?", cid).First(course)
-	if course.Cid == 0 {
-		return nil
+func FindCourseByCid(cid int32) (*Course, error) {
+	var err error
+	course := Course{}
+	if err = db.Where("cid = ?", cid).First(&course).Error; err != nil {
+		return nil, err
 	}
-	return course
+	if course.Cid == 0 {
+		return nil, ErrorCourseNotFound
+	}
+	return &course, nil
 }
 
-func FindCoursesByCidList(cidList []int32) []Course {
-	trx := db.Begin()
-	defer trx.Commit()
-
+func FindCoursesByCidList(cidList []int32) ([]Course, error) {
+	var err error
 	var courses []Course
-	trx.Where("cid in (?)", cidList).Find(&courses)
-	return courses
+	if err = db.Where("cid in (?)", cidList).Find(&courses).Error; err != nil {
+		return nil, err
+	}
+	return courses, nil
 }
 
 func (c *Course) ToMap() map[string]interface{} {

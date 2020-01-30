@@ -5,12 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"guoke-helper-golang/config"
-	"log"
 	"time"
 )
 
 type Student struct {
-	Id 			uint		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
 	Account		string		`json:"account" gorm:"type:varchar(255)"`
 	Name		string		`json:"name" gorm:"type:varchar(255)"`
 	Dpt			string		`json:"dpt" gorm:"type:varchar(255)"`
@@ -20,40 +19,43 @@ type Student struct {
 	Status		int32		`json:"status" gorm:"type:int"`
 }
 
-func FindStudentById(cid int32) *Student {
-	trx := db.Begin()
-	defer trx.Commit()
+var ErrorStudentNotFound = errors.New("没有找到对应用户")
+var ErrorStudentHasExist = errors.New("该账号已存在")
 
-	student := new(Student)
-	trx.Where("id = ?", cid).First(student)
-	if student.Id == 0 {
-		return nil
+func FindStudentById(cid int32) (*Student, error) {
+	var err error
+	student := Student{}
+	if err = db.Where("id = ?", cid).First(&student).Error; err != nil {
+		return nil, err
 	}
-	return student
+	if student.Id != cid {
+		return nil, ErrorStudentNotFound
+	}
+	return &student, nil
 }
 
-func FindStudentByAccount(account string) *Student {
-	trx := db.Begin()
-	defer trx.Commit()
-
-	student := new(Student)
-	trx.Where("account = ?", account).First(student)
-	if student.Id == 0 {
-		return nil
+func FindStudentByAccount(account string) (*Student, error) {
+	var err error
+	student := Student{}
+	if err = db.Where("account = ?", account).First(&student).Error; err != nil {
+		return nil, err
 	}
-	return student
+	if student.Id == 0 {
+		return nil, ErrorStudentNotFound
+	}
+	return &student, nil
 }
 
-func FindStudentByToken(token string) *Student {
-	trx := db.Begin()
-	defer trx.Commit()
-
-	student := new(Student)
-	trx.Where("token = ?", token).First(student)
-	if student.Id == 0 {
-		return nil
+func FindStudentByToken(token string) (*Student, error) {
+	var err error
+	student := Student{}
+	if err = db.Where("token = ?", token).First(&student).Error; err != nil {
+		return nil, err
 	}
-	return student
+	if student.Id == 0 {
+		return nil, ErrorStudentNotFound
+	}
+	return &student, nil
 }
 
 func (student *Student) UpdateToken() string {
@@ -66,20 +68,33 @@ func (student *Student) UpdateToken() string {
 }
 
 func AddStudent(account, name, dpt, avatar, openid string) (string, error) {
+	var err error
 	trx := db.Begin()
-	defer trx.Commit()
+	defer func() {
+		if r := recover(); r != nil {
+			trx.Rollback()
+		}
+	}()
 
 	student := Student{}
-	trx.Set("gorm:query_option", "FOR UPDATE").
-		Where("account = ?", account).First(&student)
+	if err = trx.Set("gorm:query_option", "FOR UPDATE").
+		Where("account = ?", account).First(&student).Error; err != nil {
+			trx.Rollback()
+			return "", err
+	}
 	if student.Id != 0 {
-		return "", errors.New("该用户已存在")
+		trx.Rollback()
+		return "", ErrorStudentHasExist
 	}
 
 	token := genToken(openid)
 	student = Student{Account:account, Name:name, Dpt:dpt, Avatar:avatar, Openid:openid, Token:token}
-	if err := trx.Create(&student).Error; err != nil {
-		log.Println(err)
+	if err = trx.Create(&student).Error; err != nil {
+		trx.Rollback()
+		return "", err
+	}
+	if err = trx.Commit().Error; err != nil {
+		trx.Rollback()
 		return "", err
 	}
 	return token, nil
