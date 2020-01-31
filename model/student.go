@@ -23,8 +23,10 @@ var ErrorStudentNotFound = errors.New("没有找到对应用户")
 var ErrorStudentHasExist = errors.New("该账号已存在")
 
 func FindStudentById(cid int32) (*Student, error) {
-	var err error
-	student := Student{}
+	var (
+		err		error
+		student	Student
+	)
 	if err = db.Where("id = ?", cid).First(&student).Error; err != nil {
 		return nil, err
 	}
@@ -35,8 +37,10 @@ func FindStudentById(cid int32) (*Student, error) {
 }
 
 func FindStudentByAccount(account string) (*Student, error) {
-	var err error
-	student := Student{}
+	var (
+		err		error
+		student	Student
+	)
 	if err = db.Where("account = ?", account).First(&student).Error; err != nil {
 		return nil, err
 	}
@@ -47,8 +51,10 @@ func FindStudentByAccount(account string) (*Student, error) {
 }
 
 func FindStudentByToken(token string) (*Student, error) {
-	var err error
-	student := Student{}
+	var (
+		err		error
+		student	Student
+	)
 	if err = db.Where("token = ?", token).First(&student).Error; err != nil {
 		return nil, err
 	}
@@ -68,7 +74,10 @@ func (student *Student) UpdateToken() string {
 }
 
 func AddStudent(account, name, dpt, avatar, openid string) (string, error) {
-	var err error
+	var (
+		err		error
+		student	Student
+	)
 	trx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -76,7 +85,6 @@ func AddStudent(account, name, dpt, avatar, openid string) (string, error) {
 		}
 	}()
 
-	student := Student{}
 	if err = trx.Set("gorm:query_option", "FOR UPDATE").
 		Where("account = ?", account).First(&student).Error; err != nil {
 			trx.Rollback()

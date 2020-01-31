@@ -8,8 +8,10 @@ type Image struct {
 }
 
 func FindImagesByPostId(pid int32) []string {
-	var urls []string
-	var images []Image
+	var (
+		urls	[]string
+		images	[]Image
+	)
 	if err := db.Where("pid = ?", pid).Order("idx").Find(&images).Error; err != nil {
 		return urls
 	}

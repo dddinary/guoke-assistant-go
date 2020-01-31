@@ -21,7 +21,9 @@ type Lecture struct {
 var ErrorLectureHasExist = errors.New("该lecture已存在")
 
 func GetComingLectures() map[string][]Lecture {
-	var hum, sci []Lecture
+	var (
+		hum, sci	[]Lecture
+	)
 	lectures := make(map[string][]Lecture)
 	loc, _ := time.LoadLocation("Local")
 	from := time.Date(2019, 11, 12, 0, 0, 0, 0, loc)
@@ -33,7 +35,10 @@ func GetComingLectures() map[string][]Lecture {
 }
 
 func AddLecture(lid int32, name string, category int32, dpt string, start, end time.Time, venue, desc, pic string) error {
-	var err error
+	var (
+		err		error
+		lecture	Lecture
+	)
 	trx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -41,7 +46,6 @@ func AddLecture(lid int32, name string, category int32, dpt string, start, end t
 		}
 	}()
 
-	lecture := Lecture{}
 	if err = trx.First(&lecture, lid).Error; err != nil {
 		trx.Rollback()
 		return err

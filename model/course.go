@@ -24,8 +24,10 @@ type Course struct {
 var ErrorCourseNotFound = errors.New("没有找到相应的课程")
 
 func FindCourseByCid(cid int32) (*Course, error) {
-	var err error
-	course := Course{}
+	var (
+		err		error
+		course	Course
+	)
 	if err = db.Where("cid = ?", cid).First(&course).Error; err != nil {
 		return nil, err
 	}
@@ -36,8 +38,10 @@ func FindCourseByCid(cid int32) (*Course, error) {
 }
 
 func FindCoursesByCidList(cidList []int32) ([]Course, error) {
-	var err error
-	var courses []Course
+	var (
+		err		error
+		courses	[]Course
+	)
 	if err = db.Where("cid in (?)", cidList).Find(&courses).Error; err != nil {
 		return nil, err
 	}

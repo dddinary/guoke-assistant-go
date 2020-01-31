@@ -20,8 +20,11 @@ type Post struct {
 
 var ErrorPostNotFound = errors.New("没找到对应的Post")
 
-func AddPost(uid int32, content string, kind, like, view, comment int32) error {
-	var err error
+func AddPost(uid int32, content string, kind int32) error {
+	var (
+		err		error
+		post	Post
+	)
 	trx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -29,7 +32,7 @@ func AddPost(uid int32, content string, kind, like, view, comment int32) error {
 		}
 	}()
 
-	post := Post{Uid:uid, Content:content, Kind:kind, Like:like, View:view, Comment:comment,
+	post = Post{Uid:uid, Content:content, Kind:kind, Like:0, View:0, Comment:0,
 		CreatedAt:time.Now(), UpdatedAt:time.Now(), Deleted:0}
 	if err = trx.Create(&post).Error; err != nil {
 		trx.Rollback()
@@ -43,7 +46,10 @@ func AddPost(uid int32, content string, kind, like, view, comment int32) error {
 }
 
 func DeletePost(uid, pid int32) error {
-	var err error
+	var (
+		err		error
+		post	Post
+	)
 	trx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -51,7 +57,6 @@ func DeletePost(uid, pid int32) error {
 		}
 	}()
 
-	post := Post{}
 	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid).Error; err != nil {
 		trx.Rollback()
 		return err
@@ -69,4 +74,29 @@ func DeletePost(uid, pid int32) error {
 		return err
 	}
 	return nil
+}
+
+func FindPostById(pid int32) (*Post, error) {
+	var (
+		err		error
+		post	Post
+	)
+	if err = db.First(&post, pid).Error; err != nil {
+		return nil, err
+	}
+	if post.Id != pid {
+		return nil, ErrorPostNotFound
+	}
+	return &post, nil
+}
+
+func FindPostsByIdList(idList []int32) ([]Post, error) {
+	var (
+		err		error
+		posts	[]Post
+	)
+	if err = db.Where("id in (?)", idList).Find(&posts).Error; err != nil {
+		return nil, err
+	}
+	return posts, nil
 }

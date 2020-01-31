@@ -19,8 +19,10 @@ var ErrorGroupNotFound = errors.New("没有找到相应的group")
 var ErrorGroupHasExist = errors.New("已经存在该group")
 
 func FindGroupById(cid int32) (*Group, error) {
-	var err error
-	group := Group{}
+	var (
+		err		error
+		group	Group
+	)
 	if err = db.Where("id = ?", cid).First(&group).Error; err != nil {
 		return nil, err
 	}
@@ -31,8 +33,10 @@ func FindGroupById(cid int32) (*Group, error) {
 }
 
 func FindGroupByAccount(account string) (*Group, error) {
-	var err error
-	group := Group{}
+	var (
+		err		error
+		group	Group
+	)
 	if err = db.Where("account = ?", account).First(&group).Error; err != nil {
 		return nil, err
 	}
@@ -43,7 +47,10 @@ func FindGroupByAccount(account string) (*Group, error) {
 }
 
 func AddGroup(account, password, name, avatar string) error {
-	var err error
+	var (
+		err		error
+		group	Group
+	)
 	trx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -51,7 +58,6 @@ func AddGroup(account, password, name, avatar string) error {
 		}
 	}()
 
-	group := Group{}
 	if err = trx.Set("gorm:query_option", "FOR UPDATE").
 		Where("account = ?", account).First(&group).Error; err != nil {
 			trx.Rollback()
@@ -78,10 +84,12 @@ func AddGroup(account, password, name, avatar string) error {
 }
 
 func CheckGroupPwd(account, password string) bool {
+	var (
+		group	Group
+	)
 	hash := md5.New()
 	hash.Write([]byte(password))
 	hashedPwd := fmt.Sprintf("%x", hash.Sum(nil))
-	group := Group{}
 	if err := db.Where("account = ?", account).First(&group).Error; err != nil {
 		return false
 	}

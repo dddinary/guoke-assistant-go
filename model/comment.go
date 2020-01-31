@@ -17,7 +17,10 @@ type Comment struct {
 }
 
 func AddComment(pid, uid int32, content string, kind, like int32) error {
-	var err error
+	var (
+		err error
+		post Post
+	)
 	trx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -25,7 +28,6 @@ func AddComment(pid, uid int32, content string, kind, like int32) error {
 		}
 	}()
 
-	var post Post
 	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid).Error; err != nil {
 		trx.Rollback()
 		return err
@@ -51,7 +53,11 @@ func AddComment(pid, uid int32, content string, kind, like int32) error {
 }
 
 func DeleteComment(commentId, uid int32) error {
-	var err error
+	var (
+		err		error
+		comment	Comment
+		post	Post
+	)
 	trx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -59,7 +65,6 @@ func DeleteComment(commentId, uid int32) error {
 		}
 	}()
 
-	var comment Comment
 	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&comment, commentId).Error; err != nil {
 		trx.Rollback()
 		return err
@@ -68,7 +73,6 @@ func DeleteComment(commentId, uid int32) error {
 		trx.Rollback()
 		return errors.New("不是对应的用户")
 	}
-	var post Post
 	if err = trx.First(&post, comment.Pid).Error; err != nil {
 		trx.Rollback()
 		return err
@@ -89,8 +93,10 @@ func DeleteComment(commentId, uid int32) error {
 }
 
 func FindCommentsByPostId(pid int32) ([]Comment, error) {
-	var err error
-	var comments []Comment
+	var (
+		err			error
+		comments	[]Comment
+	)
 	if err = db.Where("pid = ? AND deleted = ?", pid, 0).Find(&comments).Error; err != nil {
 		return nil, err
 	}
