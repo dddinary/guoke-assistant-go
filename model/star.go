@@ -3,15 +3,15 @@ package model
 import "time"
 
 type Star struct {
-	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Pid			int32		`json:"pid" gorm:"type:int"`
-	Uid			int32		`json:"uid" gorm:"type:int"`
+	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Pid			int			`json:"pid" gorm:"type:int"`
+	Uid			int			`json:"uid" gorm:"type:int"`
 	CreatedAt	time.Time	`json:"created_at" gorm:"type:datetime"`
 	UpdatedAt	time.Time	`json:"updated_at" gorm:"type:datetime"`
-	Deleted		int32		`json:"deleted" gorm:"type:int"`
+	Deleted		int			`json:"deleted" gorm:"type:int"`
 }
 
-func AddStar(pid, uid int32) error {
+func AddStar(uid, pid int) error {
 	var (
 		err		error
 		post	Post
@@ -59,7 +59,7 @@ func AddStar(pid, uid int32) error {
 	return nil
 }
 
-func DeleteStar(pid, uid int32) error {
+func DeleteStar(uid, pid int) error {
 	var (
 		err		error
 		star	Star
@@ -88,5 +88,19 @@ func DeleteStar(pid, uid int32) error {
 		return err
 	}
 	return nil
+}
+
+func IfStared(uid, pid int) bool {
+	var (
+		err		error
+		star	Star
+	)
+	if err = db.Where("pid = AND uid = ", pid, uid, &star).Error; err != nil {
+		return false
+	}
+	if star.Id > 0 && star.Deleted == 0 {
+		return true
+	}
+	return false
 }
 

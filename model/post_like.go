@@ -3,15 +3,15 @@ package model
 import "time"
 
 type PostLike struct {
-	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Pid			int32		`json:"pid" gorm:"type:int"`
-	Uid			int32		`json:"uid" gorm:"type:int"`
+	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Pid			int			`json:"pid" gorm:"type:int"`
+	Uid			int			`json:"uid" gorm:"type:int"`
 	CreatedAt	time.Time	`json:"created_at" gorm:"type:datetime"`
 	UpdatedAt	time.Time	`json:"updated_at" gorm:"type:datetime"`
-	Deleted		int32		`json:"deleted" gorm:"type:int"`
+	Deleted		int			`json:"deleted" gorm:"type:int"`
 }
 
-func AddPostLike(pid, uid int32) error {
+func AddPostLike(uid, pid int) error {
 	var (
 		err      error
 		post     Post
@@ -63,7 +63,7 @@ func AddPostLike(pid, uid int32) error {
 	return nil
 }
 
-func DeletePostLike(pid, uid int32) error {
+func DeletePostLike(uid, pid int) error {
 	var (
 		err		error
 		post	Post
@@ -105,4 +105,18 @@ func DeletePostLike(pid, uid int32) error {
 		return err
 	}
 	return nil
+}
+
+func IfLikedPost(uid, pid int) bool {
+	var (
+		err      error
+		postLike PostLike
+	)
+	if err = db.Where("pid = AND uid = ", pid, uid, &postLike).Error; err != nil {
+		return false
+	}
+	if postLike.Id > 0 && postLike.Deleted == 0 {
+		return true
+	}
+	return false
 }

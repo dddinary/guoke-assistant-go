@@ -2,11 +2,10 @@ package model
 
 import (
 	"errors"
-	"strconv"
 )
 
 type Course struct {
-	Cid			int32	`json:"cid" gorm:"primary_key"`
+	Cid			int		`json:"cid" gorm:"primary_key"`
 	Code		string	`json:"code" gorm:"type:varchar(255)"`
 	Dpt			string	`json:"dpt" gorm:"type:varchar(255)"`
 	Name		string	`json:"name" gorm:"type:varchar(255)"`
@@ -23,7 +22,7 @@ type Course struct {
 
 var ErrorCourseNotFound = errors.New("没有找到相应的课程")
 
-func FindCourseByCid(cid int32) (*Course, error) {
+func FindCourseByCid(cid int) (*Course, error) {
 	var (
 		err		error
 		course	Course
@@ -37,7 +36,7 @@ func FindCourseByCid(cid int32) (*Course, error) {
 	return &course, nil
 }
 
-func FindCoursesByCidList(cidList []int32) ([]Course, error) {
+func FindCoursesByCidList(cidList []int) ([]Course, error) {
 	var (
 		err		error
 		courses	[]Course
@@ -46,22 +45,4 @@ func FindCoursesByCidList(cidList []int32) ([]Course, error) {
 		return nil, err
 	}
 	return courses, nil
-}
-
-func (c *Course) ToMap() map[string]interface{} {
-	res := make(map[string]interface{})
-	res["cid"] 			= strconv.Itoa(int(c.Cid))
-	res["code"]			= c.Code
-	res["dpt"]			= c.Dpt
-	res["name"]			= c.Name
-	res["attr"]			= c.Attr
-	res["major"]		= c.Major
-	res["keshi"]		= c.Keshi
-	res["score"]		= c.Score
-	res["shouke"]		= c.Shouke
-	res["kaoshi"]		= c.Kaoshi
-	res["professor"]	= c.Professor
-	res["lecturer"]		= c.Lecturer
-	res["assistant"]	= c.Assistant
-	return res
 }

@@ -13,6 +13,7 @@ type AppConfig struct {
 	Port 		string
 	Release		bool
 	Magic		string
+	PageSize	int
 }
 
 type MySQLConfig struct {

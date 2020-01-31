@@ -9,20 +9,21 @@ import (
 )
 
 type Student struct {
-	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
 	Account		string		`json:"account" gorm:"type:varchar(255)"`
 	Name		string		`json:"name" gorm:"type:varchar(255)"`
 	Dpt			string		`json:"dpt" gorm:"type:varchar(255)"`
 	Avatar		string		`json:"avatar" gorm:"type:varchar(255)"`
 	Openid		string		`json:"openid" gorm:"type:varchar(255)"`
 	Token		string		`json:"token" gorm:"type:varchar(255)"`
-	Status		int32		`json:"status" gorm:"type:int"`
+	Status		int			`json:"status" gorm:"type:int"`
 }
 
 var ErrorStudentNotFound = errors.New("没有找到对应用户")
 var ErrorStudentHasExist = errors.New("该账号已存在")
+var ErrorNotRightUser 	 = errors.New("用户非法操作")
 
-func FindStudentById(cid int32) (*Student, error) {
+func FindStudentById(cid int) (*Student, error) {
 	var (
 		err		error
 		student	Student

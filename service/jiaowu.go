@@ -15,10 +15,10 @@ import (
 const baseURL = "http://sep.ucas.ac.cn"
 
 type site struct {
-	id			int32
+	id			int
 	url			string
 	loginUrl	string
-	roleId		int32
+	roleId		int
 }
 
 var sites map[string]site
@@ -175,7 +175,7 @@ func siteLogin(cli *req.Req, siteName string) bool {
 	return true
 }
 
-func getCourseList(cli *req.Req) []int32 {
+func getCourseList(cli *req.Req) []int {
 	resp, err := cli.Get(sites["jwxk"].url + "/courseManage/selectedCourse")
 	if err != nil {
 		log.Printf("获取课程列表失败：%v", err)
@@ -188,30 +188,30 @@ func getCourseList(cli *req.Req) []int32 {
 	if len(match) < 1 || len(match[0]) < 2 {
 		return nil
 	}
-	var cidList []int32
+	var cidList []int
 	for _, item := range match {
 		if item[3] == "二" {
 			cid, err := strconv.ParseInt(item[1], 10, 32)
 			if err != nil {
 				continue
 			}
-			cidList = append(cidList, int32(cid))
+			cidList = append(cidList, int(cid))
 		}
 	}
 	return cidList
 }
 
-func GetCourseDetailAndTimeTable(cidList []int32) (map[int32]interface{}, [21][8][]interface{}) {
+func GetCourseDetailAndTimeTable(cidList []int) (map[int]interface{}, [21][8][]interface{}) {
 	var table [21][8][]interface{}
 	for i := range table {
 		for j := range table[i] {
 			table[i][j] = []interface{}{}
 		}
 	}
-	courseDetail := make(map[int32]interface{})
+	courseDetail := make(map[int]interface{})
 	courses, _ := model.FindCoursesByCidList(cidList)
 	for _, course := range courses {
-		courseMap := course.ToMap()
+		courseMap := utils.StructToMap(&course)
 		timePlace := model.FindTimePlaceByCid(course.Cid)
 		courseMap["time_place"] = timePlace
 		courseDetail[course.Cid] = courseMap

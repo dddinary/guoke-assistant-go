@@ -3,15 +3,15 @@ package model
 import "time"
 
 type CommentLike struct {
-	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Cid			int32		`json:"cid" gorm:"type:int"`
-	Uid			int32		`json:"uid" gorm:"type:int"`
+	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Cid			int			`json:"cid" gorm:"type:int"`
+	Uid			int			`json:"uid" gorm:"type:int"`
 	CreatedAt	time.Time	`json:"created_at" gorm:"type:datetime"`
 	UpdatedAt	time.Time	`json:"updated_at" gorm:"type:datetime"`
-	Deleted		int32		`json:"deleted" gorm:"type:int"`
+	Deleted		int			`json:"deleted" gorm:"type:int"`
 }
 
-func AddCommentLike(cid, uid int32) error {
+func AddCommentLike(uid, cid int) error {
 	var (
 		err         error
 		comment     Comment
@@ -35,7 +35,8 @@ func AddCommentLike(cid, uid int32) error {
 		trx.Rollback()
 		return err
 	}
-	if commentLike.Id != 0 && commentLike.Deleted == 0 {
+	// 已经点过赞或者二级评论，都无法点赞
+	if commentLike.Id != 0 && commentLike.Deleted == 0 || comment.Cid != 0{
 		trx.Rollback()
 		return nil
 	}
@@ -63,7 +64,7 @@ func AddCommentLike(cid, uid int32) error {
 	return nil
 }
 
-func DeleteCommentLike(pid, uid int32) error {
+func DeleteCommentLike(uid, cid int) error {
 	var (
 		err         error
 		comment     Comment
@@ -75,15 +76,15 @@ func DeleteCommentLike(pid, uid int32) error {
 			trx.Rollback()
 		}
 	}()
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&comment, pid).Error; err != nil {
+	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&comment, cid).Error; err != nil {
 		trx.Rollback()
 		return err
 	}
-	if comment.Id != pid {
+	if comment.Id != cid {
 		trx.Rollback()
 		return ErrorPostNotFound
 	}
-	if err = trx.Where("pid = ? AND uid = ?", pid, uid).First(&commentLike).Error; err != nil {
+	if err = trx.Where("cid = ? AND uid = ?", cid, uid).First(&commentLike).Error; err != nil {
 		trx.Rollback()
 		return err
 	}
@@ -105,4 +106,18 @@ func DeleteCommentLike(pid, uid int32) error {
 		return err
 	}
 	return nil
+}
+
+func IfLikedComment(uid, cid int) bool {
+	var (
+		err         error
+		commentLike CommentLike
+	)
+	if err = db.Where("cid = AND uid = ", cid, uid, &commentLike).Error; err != nil {
+		return false
+	}
+	if commentLike.Id > 0 && commentLike.Deleted == 0 {
+		return true
+	}
+	return false
 }

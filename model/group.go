@@ -7,23 +7,23 @@ import (
 )
 
 type Group struct {
-	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
 	Account		string		`json:"account" gorm:"type:varchar(255)"`
 	Password	string		`json:"password" gorm:"type:varchar(255)"`
 	Name		string		`json:"name" gorm:"type:varchar(255)"`
 	Avatar		string		`json:"avatar" gorm:"type:varchar(255)"`
-	Status		int32		`json:"status" gorm:"type:int"`
+	Status		int			`json:"status" gorm:"type:int"`
 }
 
 var ErrorGroupNotFound = errors.New("没有找到相应的group")
 var ErrorGroupHasExist = errors.New("已经存在该group")
 
-func FindGroupById(cid int32) (*Group, error) {
+func FindGroupById(gid int) (*Group, error) {
 	var (
 		err		error
 		group	Group
 	)
-	if err = db.Where("id = ?", cid).First(&group).Error; err != nil {
+	if err = db.Where("id = ?", gid).First(&group).Error; err != nil {
 		return nil, err
 	}
 	if group.Id == 0 {

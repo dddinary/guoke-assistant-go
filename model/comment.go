@@ -6,19 +6,20 @@ import (
 )
 
 type Comment struct {
-	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Pid			int32		`json:"pid" gorm:"type:int"`
-	Uid			int32		`json:"uid" gorm:"type:int"`
+	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Pid			int			`json:"pid" gorm:"type:int"`
+	Cid			int			`json:"cid" gorm:"type:int"`
+	Uid			int			`json:"uid" gorm:"type:int"`
 	Content		string		`json:"content" gorm:"type:text"`
-	Kind		int32		`json:"kind" gorm:"type:int"`
-	Like		int32		`json:"like" gorm:"type:int"`
+	Like		int			`json:"like" gorm:"type:int"`
 	CreatedAt	time.Time	`json:"created_at" gorm:"type:datetime"`
-	Deleted		int32		`json:"deleted" gorm:"type:int"`
+	Deleted		int			`json:"deleted" gorm:"type:int"`
 }
 
 var ErrorCommentNotFound = errors.New("没找到相应的Comment")
 
-func AddComment(pid, uid int32, content string, kind, like int32) error {
+// 如果cid不为0就是二级评论，否则就是一级评论
+func AddComment(uid, pid, cid int, content string) error {
 	var (
 		err error
 		post Post
@@ -30,7 +31,10 @@ func AddComment(pid, uid int32, content string, kind, like int32) error {
 		}
 	}()
 
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid).Error; err != nil {
+	if cid == 0 {
+		trx = trx.Set("gorm:query_option", "FOR UPDATE")
+	}
+	if err = trx.First(&post, pid).Error; err != nil {
 		trx.Rollback()
 		return err
 	}
@@ -38,14 +42,16 @@ func AddComment(pid, uid int32, content string, kind, like int32) error {
 		trx.Rollback()
 		return ErrorPostNotFound
 	}
-	comment := Comment{Pid:pid, Uid:uid, Content:content, Kind:kind, Like:like, CreatedAt:time.Now(), Deleted:0}
+	comment := Comment{Pid:pid, Uid:uid, Cid:cid, Content:content, Like:0, CreatedAt:time.Now(), Deleted:0}
 	if err = trx.Create(&comment).Error; err != nil {
 		trx.Rollback()
 		return err
 	}
-	if err = trx.Model(&post).Update("comment", post.Comment + 1).Error; err != nil {
-		trx.Rollback()
-		return err
+	if cid == 0 {
+		if err = trx.Model(&post).Update("comment", post.Comment + 1).Error; err != nil {
+			trx.Rollback()
+			return err
+		}
 	}
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()
@@ -54,7 +60,7 @@ func AddComment(pid, uid int32, content string, kind, like int32) error {
 	return nil
 }
 
-func DeleteComment(commentId, uid int32) error {
+func DeleteComment(uid, commentId int) error {
 	var (
 		err		error
 		comment	Comment
@@ -79,9 +85,11 @@ func DeleteComment(commentId, uid int32) error {
 		trx.Rollback()
 		return err
 	}
-	if err = trx.Model(&post).Update(Post{Comment:post.Comment - 1}).Error; err != nil {
-		trx.Rollback()
-		return err
+	if comment.Cid == 0 {
+		if err = trx.Model(&post).Update(Post{Comment:post.Comment - 1}).Error; err != nil {
+			trx.Rollback()
+			return err
+		}
 	}
 	if err = trx.Model(&comment).Updates(Comment{Deleted:1}).Error; err != nil {
 		trx.Rollback()
@@ -94,7 +102,7 @@ func DeleteComment(commentId, uid int32) error {
 	return nil
 }
 
-func FindCommentsByPostId(pid int32) ([]Comment, error) {
+func FindCommentsByPostId(pid int) ([]Comment, error) {
 	var (
 		err			error
 		comments	[]Comment

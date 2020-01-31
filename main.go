@@ -17,6 +17,8 @@ func main() {
 	r.GET("/getLecture", api.GetLecture)
 	r.GET("/wxLogin", api.WxLogin)
 
+	r.GET("/getNews", api.GetNews)
+
 	r.Run(":" + config.AppConf.Port)
 }
 

@@ -6,10 +6,10 @@ import (
 )
 
 type Lecture struct {
-	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Lid			int32		`json:"lid" gorm:"type:int"`
+	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Lid			int			`json:"lid" gorm:"type:int"`
 	Name		string		`json:"name" gorm:"type:varchar(255)"`
-	Category	int32		`json:"category" gorm:"type:int"`
+	Category	int			`json:"category" gorm:"type:int"`
 	Dpt			string		`json:"dpt" gorm:"type:varchar(255)"`
 	Start		time.Time	`json:"start" gorm:"type:datetime"`
 	End			time.Time	`json:"end" gorm:"type:datetime"`
@@ -34,7 +34,7 @@ func GetComingLectures() map[string][]Lecture {
 	return lectures
 }
 
-func AddLecture(lid int32, name string, category int32, dpt string, start, end time.Time, venue, desc, pic string) error {
+func AddLecture(lid int, name string, category int, dpt string, start, end time.Time, venue, desc, pic string) error {
 	var (
 		err		error
 		lecture	Lecture

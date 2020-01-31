@@ -2,25 +2,33 @@ package model
 
 import (
 	"errors"
+	"github.com/jinzhu/gorm"
 	"time"
 )
 
 type Post struct {
-	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Uid			int32		`json:"uid" gorm:"type:int"`
+	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Uid			int			`json:"uid" gorm:"type:int"`
 	Content		string		`json:"content" gorm:"type:text"`
-	Kind		int32		`json:"kind" gorm:"type:int"`
-	Like		int32		`json:"like" gorm:"type:int"`
-	View		int32		`json:"view" gorm:"type:int"`
-	Comment		int32		`json:"comment" gorm:"type:int"`
+	Kind		int			`json:"kind" gorm:"type:int"`
+	Like		int			`json:"like" gorm:"type:int"`
+	View		int			`json:"view" gorm:"type:int"`
+	Comment		int			`json:"comment" gorm:"type:int"`
 	CreatedAt	time.Time	`json:"created_at" gorm:"type:datetime"`
 	UpdatedAt	time.Time	`json:"updated_at" gorm:"type:datetime"`
-	Deleted		int32		`json:"deleted" gorm:"type:int"`
+	Deleted		int			`json:"deleted" gorm:"type:int"`
 }
 
 var ErrorPostNotFound = errors.New("没找到对应的Post")
 
-func AddPost(uid int32, content string, kind int32) error {
+func (post *Post) ToMap() map[string]interface{} {
+	res := make(map[string]interface{})
+	res["id"] = post.Id
+
+	return res
+}
+
+func AddPost(uid int, content string, kind int) error {
 	var (
 		err		error
 		post	Post
@@ -45,7 +53,7 @@ func AddPost(uid int32, content string, kind int32) error {
 	return nil
 }
 
-func DeletePost(uid, pid int32) error {
+func DeletePost(uid, pid int) error {
 	var (
 		err		error
 		post	Post
@@ -65,7 +73,11 @@ func DeletePost(uid, pid int32) error {
 		trx.Rollback()
 		return ErrorPostNotFound
 	}
-	if err = trx.Model(&post).Updates(Post{Deleted:1}).Error; err != nil {
+	if post.Uid != uid {
+		trx.Rollback()
+		return ErrorNotRightUser
+	}
+	if err = trx.Model(&post).Updates(Post{Deleted:1, UpdatedAt:time.Now()}).Error; err != nil {
 		trx.Rollback()
 		return err
 	}
@@ -76,7 +88,7 @@ func DeletePost(uid, pid int32) error {
 	return nil
 }
 
-func FindPostById(pid int32) (*Post, error) {
+func FindPostById(pid int) (*Post, error) {
 	var (
 		err		error
 		post	Post
@@ -90,7 +102,7 @@ func FindPostById(pid int32) (*Post, error) {
 	return &post, nil
 }
 
-func FindPostsByIdList(idList []int32) ([]Post, error) {
+func FindPostsByIdList(idList []int) ([]Post, error) {
 	var (
 		err		error
 		posts	[]Post
@@ -99,4 +111,62 @@ func FindPostsByIdList(idList []int32) ([]Post, error) {
 		return nil, err
 	}
 	return posts, nil
+}
+
+var orderMap = map[int]string{
+	0: "created_at desc",
+	1: "like desc",
+	2: "comment desc",
+}
+
+func FindPostsByCondition(kind, order, pageIdx, pageSize int) ([]Post, error) {
+	var (
+		err		error
+		posts	[]Post
+		handler *gorm.DB
+	)
+	if kind > 0 {
+		handler = db.Where("kind = ?", kind)
+	} else {
+		handler = db
+	}
+	orderStr, ok := orderMap[order]
+	if !ok {
+		orderStr = orderMap[0]
+	}
+	if err = handler.Order(orderStr).Offset(pageIdx*pageSize).Limit(pageSize).Find(&posts).Error; err != nil {
+			return nil, err
+	}
+	return posts, nil
+}
+
+func FindPostsByUid(uid, pageIdx, pageSize int) ([]Post, error) {
+	var (
+		err		error
+		posts	[]Post
+	)
+	if err = db.Where("uid = ?", uid).Order("created_at desc").
+		Offset(pageIdx*pageSize).Limit(pageSize).Find(&posts).Error; err != nil {
+			return nil, err
+	}
+	return posts, nil
+}
+
+func FindStaredPosts(uid, pageIdx, pageSize int) ([]Post, error) {
+	var (
+		err		error
+		posts	[]Post
+		stars	[]Star
+		idList	[]int
+	)
+	if err = db.Where("uid = ?", uid).Order("created_at desc").
+		Offset(pageIdx*pageSize).Limit(pageSize).Find(&stars).Error; err != nil {
+			return nil, err
+	}
+	idList = []int{}
+	for _, rec := range stars {
+		idList = append(idList, rec.Pid)
+	}
+	posts, err = FindPostsByIdList(idList)
+	return posts, err
 }

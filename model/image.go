@@ -1,13 +1,13 @@
 package model
 
 type Image struct {
-	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Pid			int32		`json:"pid" gorm:"type:int"`
+	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Pid			int			`json:"pid" gorm:"type:int"`
 	Url			string		`json:"content" gorm:"type:text"`
-	Idx			int32		`json:"idx" gorm:"type:int"`
+	Idx			int			`json:"idx" gorm:"type:int"`
 }
 
-func FindImagesByPostId(pid int32) []string {
+func FindImagesByPostId(pid int) []string {
 	var (
 		urls	[]string
 		images	[]Image
