@@ -1,0 +1,108 @@
+package model
+
+import "time"
+
+type PostLike struct {
+	Id 			int32		`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Pid			int32		`json:"pid" gorm:"type:int"`
+	Uid			int32		`json:"uid" gorm:"type:int"`
+	CreatedAt	time.Time	`json:"created_at" gorm:"type:datetime"`
+	UpdatedAt	time.Time	`json:"updated_at" gorm:"type:datetime"`
+	Deleted		int32		`json:"deleted" gorm:"type:int"`
+}
+
+func AddPostLike(pid, uid int32) error {
+	var (
+		err      error
+		post     Post
+		postLike PostLike
+	)
+	trx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			trx.Rollback()
+		}
+	}()
+	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid).Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if post.Id != pid || post.Deleted == 1{
+		trx.Rollback()
+		return ErrorPostNotFound
+	}
+	if err = trx.Where("pid = ? AND uid = ?", pid, uid).First(&postLike).Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if postLike.Id != 0 && postLike.Deleted == 0 {
+		trx.Rollback()
+		return nil
+	}
+	if postLike.Id != 0 {
+		if err = trx.Model(&postLike).Updates(map[string]interface{}{"deleted": 0, "updated_at": time.Now()}).
+			Error; err != nil {
+				trx.Rollback()
+				return err
+		}
+	} else {
+		postLike = PostLike{Pid: pid, Uid:uid, CreatedAt:time.Now(), UpdatedAt:time.Now(), Deleted:0}
+		if err = trx.Create(&postLike).Error; err != nil {
+			trx.Rollback()
+			return err
+		}
+	}
+	if err = trx.Model(&post).Updates(Post{Like:post.Like + 1}).Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if err = trx.Commit().Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	return nil
+}
+
+func DeletePostLike(pid, uid int32) error {
+	var (
+		err		error
+		post	Post
+		like	PostLike
+	)
+	trx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			trx.Rollback()
+		}
+	}()
+	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid).Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if post.Id != pid {
+		trx.Rollback()
+		return ErrorPostNotFound
+	}
+	if err = trx.Where("pid = ? AND uid = ?", pid, uid).First(&like).Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if like.Id == 0 || like.Deleted == 1 {
+		trx.Rollback()
+		return nil
+	}
+	if err = trx.Model(&like).Updates(map[string]interface{}{"deleted": 1, "updated_at": time.Now()}).
+		Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if err = trx.Model(&post).Updates(Post{Like:post.Like - 1}).Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if err = trx.Commit().Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	return nil
+}

@@ -16,6 +16,8 @@ type Comment struct {
 	Deleted		int32		`json:"deleted" gorm:"type:int"`
 }
 
+var ErrorCommentNotFound = errors.New("没找到相应的Comment")
+
 func AddComment(pid, uid int32, content string, kind, like int32) error {
 	var (
 		err error
