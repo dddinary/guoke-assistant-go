@@ -20,9 +20,9 @@ func GetNews(uid, kind, order, pageIdx int) (map[string]interface{}, error) {
 	return postsToRespMap(uid, posts), nil
 }
 
-func GetUserPost(uid, pageIdx int) (map[string]interface{}, error) {
+func GetUserPost(uid, wantedUid, pageIdx int) (map[string]interface{}, error) {
 
-	posts, err := model.FindPostsByUid(uid, pageIdx, pageSize)
+	posts, err := model.FindPostsByUid(wantedUid, pageIdx, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func postsToRespMap(uid int, posts []model.Post) map[string]interface{} {
 
 }
 
-func GetPostDetail(pid, uid int) (map[string]interface{}, error) {
+func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	var (
 		err				error
 		post			*model.Post

@@ -10,7 +10,7 @@ func StructToMap(structPtr interface{}) map[string]interface{} {
 	elem := reflect.ValueOf(structPtr).Elem()
 	relType := elem.Type()
 	for i := 0; i < relType.NumField(); i++ {
-		res[relType.Field(i).Name] = elem.Field(i).Interface()
+		res[relType.Field(i).Tag.Get("json")] = elem.Field(i).Interface()
 	}
 	return res
 }

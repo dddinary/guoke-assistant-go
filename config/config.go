@@ -8,12 +8,14 @@ import (
 )
 
 type AppConfig struct {
-	Name 		string
-	Hostname 	string
-	Port 		string
-	Release		bool
-	Magic		string
-	PageSize	int
+	Name 			string
+	Hostname 		string
+	Port 			string
+	Release			bool
+	Magic			string
+	PageSize		int
+	PostMaxLen		int
+	CommentMaxLen	int
 }
 
 type MySQLConfig struct {
