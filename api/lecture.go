@@ -8,7 +8,7 @@ import (
 
 func GetLecture(c *gin.Context) {
 	lectures := service.GetLecture()
-	if lectures == nil || len(lectures) == 0 {
+	if lectures == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "参数非法",
 		})

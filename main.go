@@ -15,7 +15,7 @@ func main() {
 	r.Use(middleware.GetReqUser())
 
 	r.GET("/", api.Index)
-	r.GET("/getCaptcha", api.GetCaptcha)
+	// r.GET("/getCaptcha", api.GetCaptcha)
 	r.GET("/loginCourse", api.LoginAndGetCourse)
 	r.GET("/getLecture", api.GetLecture)
 	r.GET("/wxLogin", api.WxLogin)
@@ -31,8 +31,17 @@ func main() {
 	needLogin.GET("/commentPost", api.CommentPost)
 	needLogin.GET("/commentComment", api.CommentComment)
 	needLogin.GET("/likePost", api.LikePost)
+	needLogin.GET("/unlikePost", api.UnlikePost)
 	needLogin.GET("/likeComment", api.LikeComment)
+	needLogin.GET("/unlikeComment", api.UnlikeComment)
 	needLogin.GET("/starPost", api.StarPost)
+	needLogin.GET("/unstarPost", api.UnstarPost)
+	needLogin.GET("/deletePost", api.DeletePost)
+	needLogin.GET("/deleteComment", api.DeleteComment)
+
+	adminOnly := r.Group("/a", middleware.AdminOnly())
+	adminOnly.GET("/deletePost", api.AdminDeletePost)
+	adminOnly.GET("/deleteComment", api.AdminDeleteComment)
 
 	r.Run(":" + config.AppConf.Port)
 }

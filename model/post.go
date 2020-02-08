@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
+	"guoke-helper-golang/config"
 	"time"
 )
 
@@ -73,7 +74,7 @@ func DeletePost(uid, pid int) error {
 		trx.Rollback()
 		return ErrorPostNotFound
 	}
-	if post.Uid != uid {
+	if post.Uid != uid && uid != config.AppConf.Admin {
 		trx.Rollback()
 		return ErrorNotRightUser
 	}

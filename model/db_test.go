@@ -1,13 +1,13 @@
 package model
 
 import (
-	"guoke-helper-golang/utils"
 	"testing"
 )
 
 func TestSomething(t *testing.T) {
-	posts, _ := FindPostsByCondition(-1, 0, 0, 5)
-	for _, post := range posts {
-		t.Log(utils.StructToMap(&post))
+	stu, err := FindStudentByToken("98c876002effd5ecd796d4a06da5766706a44c71")
+	if err != nil {
+		t.Log(err)
 	}
+	t.Log(stu)
 }

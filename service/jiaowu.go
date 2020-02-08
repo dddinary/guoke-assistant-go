@@ -12,7 +12,10 @@ import (
 	"time"
 )
 
-const baseURL = "http://sep.ucas.ac.cn"
+const baseURL		= "http://sep.ucas.ac.cn"
+const siteJiaoWu	= "jwxk"
+const siteCourse	= "course"
+const siteEPay		= "epay"
 
 type site struct {
 	id			int
@@ -27,17 +30,23 @@ var userClients map[string]*req.Req
 func init() {
 	userClients = make(map[string]*req.Req)
 	sites = make(map[string]site)
-	sites["jwxk"] = site{
+	sites[siteJiaoWu] = site{
 		id: 226,
 		url: "http://jwxk.ucas.ac.cn",
 		loginUrl: "http://jwxk.ucas.ac.cn/login",
 		roleId: 821,
 	}
-	sites["course"] = site{
+	sites[siteCourse] = site{
 		id: 16,
 		url: "http://course.ucas.ac.cn",
 		loginUrl: "http://course.ucas.ac.cn/portal/plogin",
 		roleId: 801,
+	}
+	sites[siteEPay] = site {
+		id: 311,
+		url: "http://epay.ucas.ac.cn",
+		loginUrl: "http://epay.ucas.ac.cn/NetWorkUI/sepLogin.htm",
+		roleId: 1800,
 	}
 }
 
@@ -60,14 +69,17 @@ func GetCaptcha(openid string) (img []byte) {
 	return
 }
 
-func LoginAndGetCourse(openid, username, pwd, cap string) map[string]interface{} {
-	var name, dpt, avatar, token string
+func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interface{} {
+	var name, dpt, token string
 	cli, ok := userClients[openid]
-	if !ok {
-		log.Printf("找不到openid对应的http client")
-		return nil
+	if !ok || cli == nil {
+		userClients[openid] = req.New()
+		cli = userClients[openid]
+		time.AfterFunc(10 * time.Minute, func() {
+			delete(userClients, openid)
+		})
 	}
-	if !MainLogin(cli, username, pwd, cap) {
+	if !MainLoginWithoutCaptcha(cli, username, pwd) {
 		log.Printf("登录失败")
 		return nil
 	}
@@ -78,7 +90,9 @@ func LoginAndGetCourse(openid, username, pwd, cap string) map[string]interface{}
 		nameDpt = findNameAndDpt(cli)
 		name = nameDpt["name"]
 		dpt = nameDpt["dpt"]
-		avatar  = utils.BTGetAvatarUrl()
+		if avatar == "" {
+			avatar  = utils.BTGetAvatarUrl()
+		}
 		token, _ = model.AddStudent(username, name, dpt, avatar, openid)
 	} else {
 		name = stu.Name
@@ -87,7 +101,7 @@ func LoginAndGetCourse(openid, username, pwd, cap string) map[string]interface{}
 		token = stu.UpdateToken()
 	}
 
-	if !siteLogin(cli, "jwxk") {
+	if !siteLogin(cli, siteJiaoWu) {
 		log.Printf("登录站点失败")
 		return nil
 	}
@@ -104,7 +118,46 @@ func LoginAndGetCourse(openid, username, pwd, cap string) map[string]interface{}
 	}
 }
 
-func MainLogin(cli *req.Req, username, pwd, cap string) bool {
+type MainLoginRes struct {
+	F	bool	`json:"f"`
+	Msg	string	`json:"msg"`
+}
+
+func MainLoginWithoutCaptcha(cli *req.Req, username, password string) bool {
+	var (
+		err			error
+		resp		*req.Resp
+		loginRes	MainLoginRes
+		errLogMsg	= "登录失败"
+	)
+	_, _ = cli.Get("http://onestop.ucas.edu.cn")
+	data := req.Param{
+		"username": username,
+		"password": password,
+	}
+	headers := req.Header{
+		"X-Requested-With": "XMLHttpRequest",
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36",
+	}
+	loginUrl := "http://onestop.ucas.edu.cn/Ajax/Login/0"
+	resp, err = cli.Post(loginUrl, data, headers)
+	if err != nil {
+		log.Printf("%s：%+v\n", errLogMsg, err)
+	}
+	if err = resp.ToJSON(&loginRes); err != nil {
+		log.Printf("%s：%+v\n", errLogMsg, err)
+	}
+	if !loginRes.F {
+		log.Printf("%s：%s", errLogMsg, loginRes.Msg)
+	}
+	resp, err = cli.Get(loginRes.Msg)
+	if err != nil {
+		log.Printf("%s：%+v\n", errLogMsg, err)
+	}
+	return true
+}
+
+func MainLoginWithCaptcha(cli *req.Req, username, pwd, cap string) bool {
 	data := req.Param{
 		"userName": username,
 		"pwd": pwd,
@@ -176,7 +229,7 @@ func siteLogin(cli *req.Req, siteName string) bool {
 }
 
 func getCourseList(cli *req.Req) []int {
-	resp, err := cli.Get(sites["jwxk"].url + "/courseManage/selectedCourse")
+	resp, err := cli.Get(sites[siteJiaoWu].url + "/courseManage/selectedCourse")
 	if err != nil {
 		log.Printf("获取课程列表失败：%v", err)
 		return nil
@@ -216,7 +269,7 @@ func GetCourseDetailAndTimeTable(cidList []int) (map[int]interface{}, [21][8][]i
 		courseMap["time_place"] = timePlace
 		courseDetail[course.Cid] = courseMap
 		for _, tp := range timePlace {
-			weekDay := int(tp.Weekday)
+			weekDay := tp.Weekday
 			weekNoList := strings.Split(tp.Weekno, ",")
 			for _, wn := range weekNoList {
 				weekNo, _ := strconv.Atoi(wn)

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"guoke-helper-golang/config"
+	"guoke-helper-golang/utils"
 	"time"
 )
 
@@ -70,6 +71,7 @@ func (student *Student) UpdateToken() string {
 	defer trx.Commit()
 
 	token := genToken(student.Openid)
+	_ = utils.DeleteTokenInRedis(student.Token)
 	trx.Model(&student).Update("token", token)
 	return token
 }

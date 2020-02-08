@@ -10,7 +10,7 @@ import (
 func WxLogin(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
 	if code == "" {
-		c.JSON(http.StatusBadRequest, e.ErrResp(e.InvalidParams))
+		c.JSON(http.StatusBadRequest, e.ErrResp(e.ErrorInvalidParams))
 		return
 	}
 	openid := service.CodeToSession(code)

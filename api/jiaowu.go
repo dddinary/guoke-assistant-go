@@ -10,7 +10,7 @@ import (
 func GetCaptcha(c *gin.Context) {
 	openid := c.DefaultQuery("openid", "")
 	if openid == "" {
-		c.JSON(http.StatusBadRequest, e.ErrResp(e.InvalidParams))
+		c.JSON(http.StatusBadRequest, e.ErrResp(e.ErrorInvalidParams))
 		return
 	}
 	imgData := service.GetCaptcha(openid)
@@ -25,12 +25,12 @@ func LoginAndGetCourse(c *gin.Context) {
 	openid := c.DefaultQuery("openid", "")
 	username := c.DefaultQuery("username", "")
 	pwd := c.DefaultQuery("pwd", "")
-	cap := c.DefaultQuery("cap", "")
-	if openid == "" || username == "" || pwd == "" || cap == "" {
-		c.JSON(http.StatusBadRequest, e.ErrResp(e.InvalidParams))
+	avatar := c.DefaultQuery("avatar", "")
+	if openid == "" || username == "" || pwd == "" {
+		c.JSON(http.StatusBadRequest, e.ErrResp(e.ErrorInvalidParams))
 		return
 	}
-	res := service.LoginAndGetCourse(openid, username, pwd, cap)
+	res := service.LoginAndGetCourse(openid, username, pwd, avatar)
 	if res == nil {
 		c.JSON(http.StatusInternalServerError, e.ErrResp(e.ErrorLoginFailed))
 	}

@@ -65,12 +65,12 @@ func Publish(c *gin.Context) {
 	kind := utils.ValidateInt(c.DefaultQuery("kind", ""), 10)
 	content := c.DefaultQuery("content", "")
 	if content == "" || len(content) > config.AppConf.PostMaxLen {
-		c.JSON(http.StatusOK, e.ErrResp(e.InvalidParams))
+		c.JSON(http.StatusOK, e.ErrResp(e.ErrorInvalidParams))
 	}
 	uid := c.MustGet(UidKey).(int)
 	err := service.AddPost(uid, content, kind)
 	if err != nil {
-		c.JSON(http.StatusOK, e.ErrResp(e.InvalidParams))
+		c.JSON(http.StatusOK, e.ErrResp(e.ErrorInvalidParams))
 	}
 	c.JSON(http.StatusOK, e.ErrResp(e.SUCCESS))
 }
@@ -112,6 +112,17 @@ func UnstarPost(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	uid := c.MustGet(UidKey).(int)
 	err := service.UnstarPost(uid, pid)
+	if err != nil {
+		logrus.Print(err)
+		c.JSON(http.StatusOK, e.ErrResp(e.ERROR))
+	}
+	c.JSON(http.StatusOK, e.ErrResp(e.SUCCESS))
+}
+
+func DeletePost(c *gin.Context) {
+	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
+	uid := c.MustGet(UidKey).(int)
+	err := service.DeletePost(uid, pid)
 	if err != nil {
 		logrus.Print(err)
 		c.JSON(http.StatusOK, e.ErrResp(e.ERROR))

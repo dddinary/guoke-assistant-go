@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"guoke-helper-golang/config"
 	"time"
 )
 
@@ -77,7 +78,7 @@ func DeleteComment(uid, commentId int) error {
 		trx.Rollback()
 		return err
 	}
-	if comment.Uid != uid {
+	if comment.Uid != uid && uid != config.AppConf.Admin {
 		trx.Rollback()
 		return errors.New("不是对应的用户")
 	}

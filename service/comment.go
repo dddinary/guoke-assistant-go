@@ -17,3 +17,7 @@ func LikeComment(uid, cid int) error {
 func UnlikeComment(uid, cid int) error {
 	return model.DeleteCommentLike(uid, cid)
 }
+
+func DeleteComment(uid, cid int) error {
+	return model.DeleteComment(uid, cid)
+}

@@ -137,3 +137,7 @@ func StarPost(uid, pid int) error {
 func UnstarPost(uid, pid int) error {
 	return model.DeleteStar(uid, pid)
 }
+
+func DeletePost(uid, pid int) error {
+	return model.DeletePost(uid, pid)
+}
