@@ -18,6 +18,7 @@ require (
 	github.com/onsi/ginkgo v1.10.1 // indirect
 	github.com/onsi/gomega v1.7.0 // indirect
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/viper v1.6.2
 	github.com/tebeka/strftime v0.1.3 // indirect

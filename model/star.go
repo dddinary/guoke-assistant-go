@@ -23,18 +23,12 @@ func AddStar(uid, pid int) error {
 			trx.Rollback()
 		}
 	}()
-	if err = trx.First(&post, pid).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.First(&post, pid)
 	if post.Id != pid || post.Deleted == 1{
 		trx.Rollback()
 		return ErrorPostNotFound
 	}
-	if err = trx.Where("pid = ? AND uid = ?", pid, uid).First(&star).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Where("pid = ? AND uid = ?", pid, uid).First(&star)
 	if star.Id != 0 && star.Deleted == 0 {
 		trx.Rollback()
 		return nil
@@ -70,10 +64,7 @@ func DeleteStar(uid, pid int) error {
 			trx.Rollback()
 		}
 	}()
-	if err = trx.Where("pid = ? AND uid = ?", pid, uid).First(&star).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Where("pid = ? AND uid = ?", pid, uid).First(&star)
 	if star.Id == 0 || star.Deleted == 1 {
 		trx.Rollback()
 		return nil
@@ -92,12 +83,9 @@ func DeleteStar(uid, pid int) error {
 
 func IfStared(uid, pid int) bool {
 	var (
-		err		error
 		star	Star
 	)
-	if err = db.Where("pid = AND uid = ", pid, uid, &star).Error; err != nil {
-		return false
-	}
+	db.Where("pid = ? AND uid = ?", pid, uid, &star)
 	if star.Id > 0 && star.Deleted == 0 {
 		return true
 	}

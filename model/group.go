@@ -20,12 +20,9 @@ var ErrorGroupHasExist = errors.New("已经存在该group")
 
 func FindGroupById(gid int) (*Group, error) {
 	var (
-		err		error
 		group	Group
 	)
-	if err = db.Where("id = ?", gid).First(&group).Error; err != nil {
-		return nil, err
-	}
+	db.First(&group, gid)
 	if group.Id == 0 {
 		return nil, ErrorGroupNotFound
 	}
@@ -34,12 +31,9 @@ func FindGroupById(gid int) (*Group, error) {
 
 func FindGroupByAccount(account string) (*Group, error) {
 	var (
-		err		error
 		group	Group
 	)
-	if err = db.Where("account = ?", account).First(&group).Error; err != nil {
-		return nil, err
-	}
+	db.Where("account = ?", account).First(&group)
 	if group.Id == 0 {
 		return nil, ErrorGroupNotFound
 	}
@@ -58,11 +52,8 @@ func AddGroup(account, password, name, avatar string) error {
 		}
 	}()
 
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").
-		Where("account = ?", account).First(&group).Error; err != nil {
-			trx.Rollback()
-			return err
-	}
+	trx.Set("gorm:query_option", "FOR UPDATE").
+		Where("account = ?", account).First(&group)
 	if group.Id != 0 {
 		trx.Rollback()
 		return ErrorGroupHasExist

@@ -23,18 +23,12 @@ func AddCommentLike(uid, cid int) error {
 			trx.Rollback()
 		}
 	}()
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&comment, cid).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Set("gorm:query_option", "FOR UPDATE").First(&comment, cid)
 	if comment.Id != cid || comment.Deleted == 1{
 		trx.Rollback()
 		return ErrorCommentNotFound
 	}
-	if err = trx.Where("cid = ? AND uid = ?", cid, uid).First(&commentLike).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Where("cid = ? AND uid = ?", cid, uid).First(&commentLike)
 	// 已经点过赞或者二级评论，都无法点赞
 	if commentLike.Id != 0 && commentLike.Deleted == 0 || comment.Cid != 0{
 		trx.Rollback()
@@ -76,18 +70,12 @@ func DeleteCommentLike(uid, cid int) error {
 			trx.Rollback()
 		}
 	}()
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&comment, cid).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Set("gorm:query_option", "FOR UPDATE").First(&comment, cid)
 	if comment.Id != cid {
 		trx.Rollback()
-		return ErrorPostNotFound
+		return ErrorCommentNotFound
 	}
-	if err = trx.Where("cid = ? AND uid = ?", cid, uid).First(&commentLike).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Where("cid = ? AND uid = ?", cid, uid).First(&commentLike)
 	if commentLike.Id == 0 || commentLike.Deleted == 1 {
 		trx.Rollback()
 		return nil
@@ -97,7 +85,7 @@ func DeleteCommentLike(uid, cid int) error {
 		trx.Rollback()
 		return err
 	}
-	if err = trx.Model(&comment).Updates(Post{Like: comment.Like - 1}).Error; err != nil {
+	if err = trx.Model(&comment).Updates(Comment{Like: comment.Like - 1}).Error; err != nil {
 		trx.Rollback()
 		return err
 	}

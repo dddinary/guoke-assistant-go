@@ -1,7 +1,10 @@
 package service
 
 import (
+	"errors"
+	"fmt"
 	"github.com/imroc/req"
+	"guoke-helper-golang/config"
 	"guoke-helper-golang/model"
 	"guoke-helper-golang/utils"
 	"log"
@@ -16,6 +19,9 @@ const baseURL		= "http://sep.ucas.ac.cn"
 const siteJiaoWu	= "jwxk"
 const siteCourse	= "course"
 const siteEPay		= "epay"
+
+const scienceLecture	= "http://jwxk.ucas.ac.cn/subject/lecture"
+const humanityLecture	= "http://jwxk.ucas.ac.cn/subject/humanityLecture"
 
 type site struct {
 	id			int
@@ -50,15 +56,20 @@ func init() {
 	}
 }
 
-func GetCaptcha(openid string) (img []byte) {
+func openidToClient(openid string) *req.Req {
 	cli, ok := userClients[openid]
 	if !ok || cli == nil{
 		userClients[openid] = req.New()
 		cli = userClients[openid]
+		time.AfterFunc(10 * time.Minute, func() {
+			delete(userClients, openid)
+		})
 	}
-	time.AfterFunc(10 * time.Minute, func() {
-		delete(userClients, openid)
-	})
+	return cli
+}
+
+func GetCaptcha(openid string) (img []byte) {
+	cli := openidToClient(openid)
 	picUrl := baseURL + "/changePic"
 	resp, err := cli.Get(picUrl)
 	if err != nil || resp.Response().StatusCode != http.StatusOK {
@@ -71,14 +82,7 @@ func GetCaptcha(openid string) (img []byte) {
 
 func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interface{} {
 	var name, dpt, token string
-	cli, ok := userClients[openid]
-	if !ok || cli == nil {
-		userClients[openid] = req.New()
-		cli = userClients[openid]
-		time.AfterFunc(10 * time.Minute, func() {
-			delete(userClients, openid)
-		})
-	}
+	cli := openidToClient(openid)
 	if !MainLoginWithoutCaptcha(cli, username, pwd) {
 		log.Printf("登录失败")
 		return nil
@@ -278,4 +282,141 @@ func GetCourseDetailAndTimeTable(cidList []int) (map[int]interface{}, [21][8][]i
 		}
 	}
 	return courseDetail, table
+}
+
+func UpdateLectureList() error {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("%+v\n", r)
+		}
+	}()
+	var (
+		err		error
+	)
+	cli := req.New()
+	if !MainLoginWithoutCaptcha(cli, config.AdminConf.Account, config.AdminConf.Pwd) {
+		err = errors.New("获取讲座信息时登录失败")
+		log.Printf("更新讲座信息出错：%v\n", err)
+		return err
+	}
+	if !siteLogin(cli, siteJiaoWu) {
+		err = errors.New("获取讲座信息时登录站点失败")
+		log.Printf("更新讲座信息出错：%v\n", err)
+		return err
+	}
+	humanityLidList := make([]int, 0)
+	scienceLidList := make([]int, 0)
+	humanityLidList = append(humanityLidList, GetPageList(cli, humanityLecture, 1)...)
+	for i := 1; i <= 3; i++ {
+		scienceLidList = append(scienceLidList, GetPageList(cli, scienceLecture, i)...)
+	}
+	addLectures(cli, humanityLidList, 2)
+	addLectures(cli, scienceLidList, 1)
+	return nil
+}
+
+func GetPageList(cli *req.Req, reqUrl string, pageNum int) []int {
+	var (
+		err			error
+		resp		*req.Resp
+		lidList 	= make([]int, 0)
+	)
+	param := req.Param{
+		"pageNum":  pageNum,
+	}
+	resp, err = cli.Post(reqUrl, param)
+	if err != nil {
+		log.Printf("获取讲座列表出错：%v\n", err)
+		return lidList
+	}
+	body := resp.String()
+	re := regexp.MustCompile(`/subject/(\d+)/view`)
+	match := re.FindAllStringSubmatch(body, -1)
+	for _, matchList := range match {
+		lid, _ := strconv.Atoi(matchList[1])
+		lidList = append(lidList, lid)
+	}
+	return lidList
+}
+
+func addLectures(cli *req.Req, lidList []int, category int) {
+	var (
+		err			error
+		hasIt		bool
+		resp		*req.Resp
+		matched		[][]string
+		re			*regexp.Regexp
+		name, dpt, venue1, venue2, venue, desc, pic string
+		startTime, endTime time.Time
+		timeLayout	= "2006/01/02 15:04:05"
+	)
+	urls := map[int]string{
+		1: "http://jwxk.ucas.ac.cn/subject/%d/view",
+		2: "http://jwxk.ucas.ac.cn/subject/%d/humanityView",
+	}
+	urlPattern := urls[category]
+	for _, lid := range lidList {
+		hasIt, err = LectureExists(lid)
+		if hasIt {
+			log.Printf("该记录已存在")
+			continue
+		}
+		url := fmt.Sprintf(urlPattern, lid)
+		resp, err = cli.Get(url)
+		if err != nil {
+			log.Printf("获取讲座信息出错，lid:%d, %+v\n", lid, err)
+			continue
+		}
+		body := resp.String()
+		body = strings.ReplaceAll(body, "\n", "")
+		re = regexp.MustCompile(`讲座名称：\s*(.*?)</td>`)
+		matched = re.FindAllStringSubmatch(body, 1)
+		if len(matched) < 1 || len(matched[0]) < 2 {
+			continue
+		}
+		name = matched[0][1]
+		re = regexp.MustCompile(`部门：\s*(.*?)</td>`)
+		matched = re.FindAllStringSubmatch(body, 1)
+		if len(matched) < 1 || len(matched[0]) < 2 {
+			continue
+		}
+		dpt = matched[0][1]
+		re = regexp.MustCompile(`开始时间：\s*(.*?)</td>`)
+		matched = re.FindAllStringSubmatch(body, 1)
+		if len(matched) < 1 || len(matched[0]) < 2 {
+			continue
+		}
+		startTime, _ = time.ParseInLocation(timeLayout, matched[0][1], time.Local)
+		re = regexp.MustCompile(`结束时间：\s*(.*?)</td>`)
+		matched = re.FindAllStringSubmatch(body, 1)
+		if len(matched) < 1 || len(matched[0]) < 2 {
+			continue
+		}
+		endTime, _ = time.ParseInLocation(timeLayout, matched[0][1], time.Local)
+		re = regexp.MustCompile(`主会场地点：\s*(.*?)</td>`)
+		matched = re.FindAllStringSubmatch(body, 1)
+		if len(matched) < 1 || len(matched[0]) < 2 {
+			continue
+		}
+		venue1 = matched[0][1]
+		re = regexp.MustCompile(`分会场地点：\s*(.*?)</td>`)
+		matched = re.FindAllStringSubmatch(body, 1)
+		if len(matched) < 1 || len(matched[0]) < 2 {
+			continue
+		}
+		venue2 = matched[0][1]
+		venue = venue1 + "#" + venue2
+		re = regexp.MustCompile(`讲座介绍</td>\s*</tr>\s*<tr>\s*<td colspan="2">(.*?)</td>`)
+		matched = re.FindAllStringSubmatch(body, 1)
+		if len(matched) < 1 || len(matched[0]) < 2 {
+			continue
+		}
+		desc = matched[0][1]
+		pic = utils.BTGetWallPaperUrl()
+		log.Println(name, dpt, startTime, endTime, venue, pic)
+		err = AddLecture(lid, name, category, dpt, startTime, endTime, venue, desc, pic)
+		if err != nil {
+			log.Printf("增加讲座信息出错：%+v\n", err)
+		}
+	}
 }

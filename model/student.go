@@ -4,8 +4,11 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"guoke-helper-golang/config"
+	"guoke-helper-golang/constant"
 	"guoke-helper-golang/utils"
+	"log"
 	"time"
 )
 
@@ -26,12 +29,9 @@ var ErrorNotRightUser 	 = errors.New("用户非法操作")
 
 func FindStudentById(cid int) (*Student, error) {
 	var (
-		err		error
 		student	Student
 	)
-	if err = db.Where("id = ?", cid).First(&student).Error; err != nil {
-		return nil, err
-	}
+	db.Where("id = ?", cid).First(&student)
 	if student.Id != cid {
 		return nil, ErrorStudentNotFound
 	}
@@ -40,12 +40,9 @@ func FindStudentById(cid int) (*Student, error) {
 
 func FindStudentByAccount(account string) (*Student, error) {
 	var (
-		err		error
 		student	Student
 	)
-	if err = db.Where("account = ?", account).First(&student).Error; err != nil {
-		return nil, err
-	}
+	db.Where("account = ?", account).First(&student)
 	if student.Id == 0 {
 		return nil, ErrorStudentNotFound
 	}
@@ -54,15 +51,19 @@ func FindStudentByAccount(account string) (*Student, error) {
 
 func FindStudentByToken(token string) (*Student, error) {
 	var (
-		err		error
-		student	Student
+		err			error
+		student		Student
+		studentPtr	*Student
 	)
-	if err = db.Where("token = ?", token).First(&student).Error; err != nil {
-		return nil, err
+	studentPtr, err = GetStudentByTokenFromRedis(token)
+	if err == nil && studentPtr != nil && studentPtr.Token == token {
+		return studentPtr, nil
 	}
-	if student.Id == 0 {
+	db.Where("token = ?", token).First(&student)
+	if student.Token != token {
 		return nil, ErrorStudentNotFound
 	}
+	_ = AddTokenStudentToRedis(token, &student)
 	return &student, nil
 }
 
@@ -71,7 +72,7 @@ func (student *Student) UpdateToken() string {
 	defer trx.Commit()
 
 	token := genToken(student.Openid)
-	_ = utils.DeleteTokenInRedis(student.Token)
+	_ = DeleteTokenStudentInRedis(student.Token)
 	trx.Model(&student).Update("token", token)
 	return token
 }
@@ -88,11 +89,8 @@ func AddStudent(account, name, dpt, avatar, openid string) (string, error) {
 		}
 	}()
 
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").
-		Where("account = ?", account).First(&student).Error; err != nil {
-			trx.Rollback()
-			return "", err
-	}
+	trx.Set("gorm:query_option", "FOR UPDATE").
+		Where("account = ?", account).First(&student)
 	if student.Id != 0 {
 		trx.Rollback()
 		return "", ErrorStudentHasExist
@@ -117,4 +115,82 @@ func genToken(openid string) string {
 	h.Write([]byte(s))
 	token := fmt.Sprintf("%x", h.Sum(nil))
 	return token
+}
+
+func GetStudentByTokenFromRedis(token string) (*Student, error) {
+	var(
+		err			error
+		student		Student
+		studentStr	string
+	)
+	tokenKey := constant.RedisKeyPrefixToken + token
+	studentStr, err = utils.RedisCli.Get(tokenKey).Result()
+	if err != nil {
+		log.Printf("redis中token获取student出错：%v\n", err)
+		return nil, err
+	}
+	err = jsoniter.UnmarshalFromString(studentStr, &student)
+	if err != nil || student.Token != token{
+		log.Printf("redis中token获取student反序列化出错：%v\n", err)
+		return nil, err
+	}
+	return &student, nil
+}
+
+func AddTokenStudentToRedis(token string, student *Student) error {
+	var(
+		err			error
+		studentStr	string
+	)
+	tokenKey := constant.RedisKeyPrefixToken + token
+	studentStr, err = jsoniter.MarshalToString(*student)
+	if err != nil {
+		log.Printf("redis中存入token-student序列化出错：%v\n", err)
+		return err
+	}
+	err = utils.RedisCli.Set(tokenKey, studentStr, 0).Err()
+	if err != nil {
+		log.Printf("edis中存入token-student出错：%v\n", err)
+		return err
+	}
+	return nil
+}
+
+func DeleteTokenStudentInRedis(token string) error {
+	tokenKey := constant.RedisKeyPrefixToken + token
+	err := utils.RedisCli.Del(tokenKey).Err()
+	if err != nil {
+		log.Printf("redis中token-Student删除出错：%v\n", err)
+		return err
+	}
+	return nil
+}
+
+func UpdateStudentBlockStatus(uid, status int) error {
+	var (
+		err			error
+		student		Student
+	)
+	trx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			trx.Rollback()
+		}
+	}()
+	trx.Where("uid = ? AND status = ?", uid, status).First(&student)
+	if student.Id != uid || student.Status == status {
+		trx.Rollback()
+		return nil
+	}
+	if err = trx.Model(&student).Updates(map[string]interface{}{"status": status}).
+		Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if err = trx.Commit().Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	_ = DeleteTokenStudentInRedis(student.Token)
+	return nil
 }

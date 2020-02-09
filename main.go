@@ -2,47 +2,29 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"guoke-helper-golang/api"
+	"github.com/robfig/cron/v3"
 	"guoke-helper-golang/config"
-	"guoke-helper-golang/middleware"
+	"guoke-helper-golang/job"
+	"guoke-helper-golang/router"
+	"log"
 )
 
 func main() {
-	// config.InitConfig("config/develop.yaml")
-	// logrus.Info("载入配置成功")
+	if config.AppConf.Release {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
-	r := gin.Default()
-	r.Use(middleware.GetReqUser())
+	c := cron.New()
+	id, err := c.AddJob("@hourly", job.LectureJob{})
+	if err != nil {
+		log.Fatalf("lecture job 启动失败: %+v\n", err)
+	}
+	log.Printf("lecture job 启动 id=%+v", id)
 
-	r.GET("/", api.Index)
-	// r.GET("/getCaptcha", api.GetCaptcha)
-	r.GET("/loginCourse", api.LoginAndGetCourse)
-	r.GET("/getLecture", api.GetLecture)
-	r.GET("/wxLogin", api.WxLogin)
-
-	r.GET("/getNews", api.GetNews)
-	r.GET("/getPost", api.GetPost)
-	r.GET("/getUserPost", api.GetUserPost)
-
-	needLogin := r.Group("/s", middleware.NeedLogin())
-
-	needLogin.GET("/getStarPost", api.GetStaredPost)
-	needLogin.GET("/publish", api.Publish)
-	needLogin.GET("/commentPost", api.CommentPost)
-	needLogin.GET("/commentComment", api.CommentComment)
-	needLogin.GET("/likePost", api.LikePost)
-	needLogin.GET("/unlikePost", api.UnlikePost)
-	needLogin.GET("/likeComment", api.LikeComment)
-	needLogin.GET("/unlikeComment", api.UnlikeComment)
-	needLogin.GET("/starPost", api.StarPost)
-	needLogin.GET("/unstarPost", api.UnstarPost)
-	needLogin.GET("/deletePost", api.DeletePost)
-	needLogin.GET("/deleteComment", api.DeleteComment)
-
-	adminOnly := r.Group("/a", middleware.AdminOnly())
-	adminOnly.GET("/deletePost", api.AdminDeletePost)
-	adminOnly.GET("/deleteComment", api.AdminDeleteComment)
-
-	r.Run(":" + config.AppConf.Port)
+	r := router.InitRouterEngine()
+	err = r.Run(":" + config.AppConf.Port)
+	if err != nil {
+		log.Fatalf("主服务启动失败: %+v\n", err)
+	}
 }
 

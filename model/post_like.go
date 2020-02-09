@@ -23,18 +23,12 @@ func AddPostLike(uid, pid int) error {
 			trx.Rollback()
 		}
 	}()
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid)
 	if post.Id != pid || post.Deleted == 1{
 		trx.Rollback()
 		return ErrorPostNotFound
 	}
-	if err = trx.Where("pid = ? AND uid = ?", pid, uid).First(&postLike).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Where("pid = ? AND uid = ?", pid, uid).First(&postLike)
 	if postLike.Id != 0 && postLike.Deleted == 0 {
 		trx.Rollback()
 		return nil
@@ -75,18 +69,12 @@ func DeletePostLike(uid, pid int) error {
 			trx.Rollback()
 		}
 	}()
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid)
 	if post.Id != pid {
 		trx.Rollback()
 		return ErrorPostNotFound
 	}
-	if err = trx.Where("pid = ? AND uid = ?", pid, uid).First(&like).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Where("pid = ? AND uid = ?", pid, uid).First(&like)
 	if like.Id == 0 || like.Deleted == 1 {
 		trx.Rollback()
 		return nil
@@ -112,7 +100,7 @@ func IfLikedPost(uid, pid int) bool {
 		err      error
 		postLike PostLike
 	)
-	if err = db.Where("pid = AND uid = ", pid, uid, &postLike).Error; err != nil {
+	if err = db.Where("pid = ? AND uid = ?", pid, uid, &postLike).Error; err != nil {
 		return false
 	}
 	if postLike.Id > 0 && postLike.Deleted == 0 {

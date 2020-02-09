@@ -22,13 +22,6 @@ type Post struct {
 
 var ErrorPostNotFound = errors.New("没找到对应的Post")
 
-func (post *Post) ToMap() map[string]interface{} {
-	res := make(map[string]interface{})
-	res["id"] = post.Id
-
-	return res
-}
-
 func AddPost(uid int, content string, kind int) error {
 	var (
 		err		error
@@ -66,15 +59,12 @@ func DeletePost(uid, pid int) error {
 		}
 	}()
 
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.Set("gorm:query_option", "FOR UPDATE").First(&post, pid)
 	if post.Id != pid {
 		trx.Rollback()
 		return ErrorPostNotFound
 	}
-	if post.Uid != uid && uid != config.AppConf.Admin {
+	if post.Uid != uid && uid != config.AdminConf.Uid {
 		trx.Rollback()
 		return ErrorNotRightUser
 	}
@@ -91,12 +81,9 @@ func DeletePost(uid, pid int) error {
 
 func FindPostById(pid int) (*Post, error) {
 	var (
-		err		error
 		post	Post
 	)
-	if err = db.First(&post, pid).Error; err != nil {
-		return nil, err
-	}
+	db.First(&post, pid)
 	if post.Id != pid {
 		return nil, ErrorPostNotFound
 	}
@@ -127,9 +114,9 @@ func FindPostsByCondition(kind, order, pageIdx, pageSize int) ([]Post, error) {
 		handler *gorm.DB
 	)
 	if kind > 0 {
-		handler = db.Where("kind = ?", kind)
+		handler = db.Where("kind = ? and deleted = ?", kind, 0)
 	} else {
-		handler = db
+		handler = db.Where("deleted = ?", 0)
 	}
 	orderStr, ok := orderMap[order]
 	if !ok {
@@ -146,7 +133,7 @@ func FindPostsByUid(uid, pageIdx, pageSize int) ([]Post, error) {
 		err		error
 		posts	[]Post
 	)
-	if err = db.Where("uid = ?", uid).Order("created_at desc").
+	if err = db.Where("uid = ? and deleted = ?", uid, 0).Order("created_at desc").
 		Offset(pageIdx*pageSize).Limit(pageSize).Find(&posts).Error; err != nil {
 			return nil, err
 	}
@@ -160,7 +147,7 @@ func FindStaredPosts(uid, pageIdx, pageSize int) ([]Post, error) {
 		stars	[]Star
 		idList	[]int
 	)
-	if err = db.Where("uid = ?", uid).Order("created_at desc").
+	if err = db.Where("uid = ? and deleted = ?", uid, 0).Order("created_at desc").
 		Offset(pageIdx*pageSize).Limit(pageSize).Find(&stars).Error; err != nil {
 			return nil, err
 	}

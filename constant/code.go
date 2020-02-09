@@ -1,4 +1,4 @@
-package e
+package constant
 
 import "github.com/gin-gonic/gin"
 

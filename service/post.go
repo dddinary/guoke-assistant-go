@@ -92,7 +92,7 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	postMap["stared"] = model.IfStared(uid, post.Id)
 	stu, err := model.FindStudentById(post.Uid)
 	if err == nil && stu != nil {
-		stuInfoMap[stu.Id] = map[string]interface{}{"name":stu.Name, "dpt": stu.Dpt, "avatar": stu.Avatar}
+		stuInfoMap[stu.Id] = map[string]interface{}{"name":stu.Name, "dpt": stu.Dpt, "avatar": stu.Avatar, "status": stu.Status}
 	}
 	comments, err := model.FindCommentsByPostId(post.Id)
 	if err != nil {

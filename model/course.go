@@ -24,12 +24,9 @@ var ErrorCourseNotFound = errors.New("没有找到相应的课程")
 
 func FindCourseByCid(cid int) (*Course, error) {
 	var (
-		err		error
 		course	Course
 	)
-	if err = db.Where("cid = ?", cid).First(&course).Error; err != nil {
-		return nil, err
-	}
+	db.Where("cid = ?", cid).First(&course)
 	if course.Cid == 0 {
 		return nil, ErrorCourseNotFound
 	}

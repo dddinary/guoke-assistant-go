@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"guoke-helper-golang/constant"
 	"log"
 	"os"
 )
@@ -13,10 +14,15 @@ type AppConfig struct {
 	Port 			string
 	Release			bool
 	Magic			string
-	Admin			int
 	PageSize		int
 	PostMaxLen		int
 	CommentMaxLen	int
+}
+
+type AdminConfig struct {
+	Uid			int
+	Account		string
+	Pwd			string
 }
 
 type MySQLConfig struct {
@@ -54,6 +60,7 @@ type LogConfig struct {
 
 type Config struct {
 	App		AppConfig
+	Admin	AdminConfig
 	Mysql	MySQLConfig
 	Redis	RedisConfig
 	Cos		CosConfig
@@ -64,6 +71,7 @@ type Config struct {
 var (
 	allConf		Config
 	AppConf		*AppConfig
+	AdminConf	*AdminConfig
 	MysqlConf	*MySQLConfig
 	RedisConf	*RedisConfig
 	CosConf		*CosConfig
@@ -72,7 +80,7 @@ var (
 )
 
 func init() {
-	confFile := "develop.yaml"
+	confFile := constant.ConfigFilePathDevelop
 	for i := 0; i < 5; i++ {
 		if _, err := os.Stat(confFile); err == nil {
 			break
@@ -103,6 +111,7 @@ func updateConfig() {
 		log.Printf("配置绑定出错！")
 	}
 	AppConf		= &allConf.App
+	AdminConf	= &allConf.Admin
 	MysqlConf	= &allConf.Mysql
 	RedisConf	= &allConf.Redis
 	CosConf		= &allConf.Cos

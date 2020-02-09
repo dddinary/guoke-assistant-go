@@ -2,15 +2,12 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"guoke-helper-golang/config"
-	"guoke-helper-golang/e"
+	"guoke-helper-golang/constant"
 	"guoke-helper-golang/model"
-	"guoke-helper-golang/utils"
 	"net/http"
 )
 
-const UidKey = "reqUid"
 
 func GetReqUser() gin.HandlerFunc {
 
@@ -18,18 +15,18 @@ func GetReqUser() gin.HandlerFunc {
 		token := c.DefaultQuery("token", "")
 		var stu *model.Student
 		var uid int
+		var blocked bool
 		if token != "" && len(token) < 100 {
-			uid = utils.ValidateTokenByRedis(token)
-			if uid == 0 {
-				stu, _ = model.FindStudentByToken(token)
-				if stu != nil {
-					logrus.Printf("Current user: %v", *stu)
-					uid = stu.Id
-					_ = utils.AddTokenToRedis(token, uid)
-				}
+			stu, _ = model.FindStudentByToken(token)
+			uid = stu.Id
+			if stu.Status == 1 {
+				blocked = true
+			} else {
+				blocked = false
 			}
 		}
-		c.Set(UidKey, uid)
+		c.Set(constant.ContextKeyUid, uid)
+		c.Set(constant.ContextKeyBlocked, blocked)
 		c.Next()
 	}
 }
@@ -37,10 +34,10 @@ func GetReqUser() gin.HandlerFunc {
 func NeedLogin() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		uid := c.MustGet(UidKey).(int)
+		uid := c.MustGet(constant.ContextKeyUid).(int)
 		if uid == 0 {
 			c.Abort()
-			c.JSON(http.StatusUnauthorized, e.ErrResp(e.ErrorInvalidParams))
+			c.JSON(http.StatusUnauthorized, constant.ErrResp(constant.ErrorInvalidParams))
 		} else {
 			c.Next()
 		}
@@ -50,10 +47,23 @@ func NeedLogin() gin.HandlerFunc {
 func AdminOnly() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		uid := c.MustGet(UidKey).(int)
-		if uid != config.AppConf.Admin {
+		uid := c.MustGet(constant.ContextKeyUid).(int)
+		if uid != config.AdminConf.Uid {
 			c.Abort()
-			c.JSON(http.StatusUnauthorized, e.ErrResp(e.ErrorInvalidParams))
+			c.JSON(http.StatusUnauthorized, constant.ErrResp(constant.ErrorInvalidParams))
+		} else {
+			c.Next()
+		}
+	}
+}
+
+func Blocker() gin.HandlerFunc {
+
+	return func(c *gin.Context) {
+		blocked := c.MustGet(constant.ContextKeyBlocked).(bool)
+		if blocked {
+			c.Abort()
+			c.JSON(http.StatusUnauthorized, constant.ErrResp(constant.BANNED))
 		} else {
 			c.Next()
 		}

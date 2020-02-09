@@ -35,10 +35,7 @@ func AddComment(uid, pid, cid int, content string) error {
 	if cid == 0 {
 		trx = trx.Set("gorm:query_option", "FOR UPDATE")
 	}
-	if err = trx.First(&post, pid).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.First(&post, pid)
 	if post.Id == 0 || post.Deleted == 1 {
 		trx.Rollback()
 		return ErrorPostNotFound
@@ -74,18 +71,12 @@ func DeleteComment(uid, commentId int) error {
 		}
 	}()
 
-	if err = trx.Set("gorm:query_option", "FOR UPDATE").First(&comment, commentId).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
-	if comment.Uid != uid && uid != config.AppConf.Admin {
+	trx.Set("gorm:query_option", "FOR UPDATE").First(&comment, commentId)
+	if comment.Uid != uid && uid != config.AdminConf.Uid {
 		trx.Rollback()
 		return errors.New("不是对应的用户")
 	}
-	if err = trx.First(&post, comment.Pid).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	trx.First(&post, comment.Pid)
 	if comment.Cid == 0 {
 		if err = trx.Model(&post).Update(Post{Comment:post.Comment - 1}).Error; err != nil {
 			trx.Rollback()

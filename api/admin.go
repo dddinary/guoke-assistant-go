@@ -3,7 +3,8 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"guoke-helper-golang/e"
+	"guoke-helper-golang/config"
+	"guoke-helper-golang/constant"
 	"guoke-helper-golang/service"
 	"guoke-helper-golang/utils"
 	"net/http"
@@ -14,10 +15,10 @@ func AdminDeletePost(c *gin.Context) {
 	uid := c.MustGet(UidKey).(int)
 	err := service.DeletePost(uid, pid)
 	if err != nil {
-		logrus.Print(err)
-		c.JSON(http.StatusOK, e.ErrResp(e.ERROR))
+		logrus.Println(err)
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ERROR))
 	}
-	c.JSON(http.StatusOK, e.ErrResp(e.SUCCESS))
+	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
 }
 
 func AdminDeleteComment(c *gin.Context) {
@@ -25,8 +26,31 @@ func AdminDeleteComment(c *gin.Context) {
 	uid := c.MustGet(UidKey).(int)
 	err := service.DeleteComment(uid, cid)
 	if err != nil {
-		logrus.Print(err)
-		c.JSON(http.StatusOK, e.ErrResp(e.ERROR))
+		logrus.Println(err)
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ERROR))
 	}
-	c.JSON(http.StatusOK, e.ErrResp(e.SUCCESS))
+	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
+}
+
+func AdminBlockStudent(c *gin.Context) {
+	uid := utils.ValidateInt(c.DefaultQuery("uid", ""), 10)
+	if uid == config.AdminConf.Uid {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ERROR))
+	}
+	err := service.BlockStudent(uid)
+	if err != nil {
+		logrus.Println(err)
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ERROR))
+	}
+	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
+}
+
+func AdminUnblockStudent(c *gin.Context) {
+	uid := utils.ValidateInt(c.DefaultQuery("uid", ""), 10)
+	err := service.UnblockStudent(uid)
+	if err != nil {
+		logrus.Println(err)
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ERROR))
+	}
+	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
 }

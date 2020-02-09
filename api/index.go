@@ -2,10 +2,10 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"guoke-helper-golang/e"
+	"guoke-helper-golang/constant"
 	"net/http"
 )
 
 func Index(c *gin.Context) {
-	c.JSON(http.StatusOK, e.ErrResp(e.SUCCESS))
+	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
 }
