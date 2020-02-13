@@ -22,7 +22,7 @@ type Post struct {
 
 var ErrorPostNotFound = errors.New("没找到对应的Post")
 
-func AddPost(uid int, content string, kind int) error {
+func AddPost(uid int, content string, kind int, images []string) error {
 	var (
 		err		error
 		post	Post
@@ -33,12 +33,18 @@ func AddPost(uid int, content string, kind int) error {
 			trx.Rollback()
 		}
 	}()
-
 	post = Post{Uid:uid, Content:content, Kind:kind, Like:0, View:0, Comment:0,
 		CreatedAt:time.Now(), UpdatedAt:time.Now(), Deleted:0}
 	if err = trx.Create(&post).Error; err != nil {
 		trx.Rollback()
 		return err
+	}
+	for idx, url := range images {
+		image := Image{Pid:post.Id, Url:url, Idx:idx}
+		if err = db.Create(&image).Error; err != nil {
+			trx.Rollback()
+			return err
+		}
 	}
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()

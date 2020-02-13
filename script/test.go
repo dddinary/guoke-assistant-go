@@ -1,12 +1,14 @@
 package main
 
 import (
-	"guoke-helper-golang/service"
+	"fmt"
+	"guoke-helper-golang/utils"
 	"log"
 )
 func main() {
 	log.Printf("#########################################")
-	err := service.UpdateLectureList()
-	log.Printf("%+v\n", err)
+	for i := 0; i < 10; i++ {
+		fmt.Println("\"" + utils.BTGetWallPaperUrl() + "\",")
+	}
 }
 

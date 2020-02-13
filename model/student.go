@@ -27,15 +27,27 @@ var ErrorStudentNotFound = errors.New("没有找到对应用户")
 var ErrorStudentHasExist = errors.New("该账号已存在")
 var ErrorNotRightUser 	 = errors.New("用户非法操作")
 
-func FindStudentById(cid int) (*Student, error) {
+func FindStudentById(sid int) (*Student, error) {
 	var (
 		student	Student
 	)
-	db.Where("id = ?", cid).First(&student)
-	if student.Id != cid {
+	db.Where("id = ?", sid).First(&student)
+	if student.Id != sid {
 		return nil, ErrorStudentNotFound
 	}
 	return &student, nil
+}
+
+func FindStudentsByIdList(sidList []int) ([]Student, error) {
+	var (
+		err			error
+		students	[]Student
+	)
+	err = db.Where("id in (?)", sidList).Find(&students).Error
+	if err != nil {
+		return students, err
+	}
+	return students, nil
 }
 
 func FindStudentByAccount(account string) (*Student, error) {

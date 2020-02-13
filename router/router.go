@@ -19,6 +19,11 @@ func InitRouterEngine() *gin.Engine {
 	r.GET("/getNews", api.GetNews)
 	r.GET("/getPost", api.GetPost)
 	r.GET("/getUserPost", api.GetUserPost)
+	r.GET("/getPostLikes", api.GetPostLikes)
+	r.GET("/getPostComments", api.GetPostComments)
+	r.GET("/getPostImages", api.GetPostImages)
+	r.GET("/getStudentInfo", api.GetStudentInfo)
+	r.GET("/getStudentsInfoList", api.GetStudentsInfoList)
 
 	needLogin := r.Group("/s", middleware.NeedLogin())
 

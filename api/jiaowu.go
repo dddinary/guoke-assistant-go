@@ -19,6 +19,7 @@ func GetCaptcha(c *gin.Context) {
 		return
 	}
 	c.Data(http.StatusOK, "image/jpeg", imgData)
+	return
 }
 
 func LoginAndGetCourse(c *gin.Context) {
@@ -26,13 +27,15 @@ func LoginAndGetCourse(c *gin.Context) {
 	username := c.DefaultPostForm("username", "")
 	pwd := c.DefaultPostForm("pwd", "")
 	avatar := c.DefaultPostForm("avatar", "")
-	if openid == "" || username == "" || pwd == "" {
+	if username == "" || pwd == "" {
 		c.JSON(http.StatusBadRequest, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}
 	res := service.LoginAndGetCourse(openid, username, pwd, avatar)
 	if res == nil {
 		c.JSON(http.StatusInternalServerError, constant.ErrResp(constant.ErrorLoginFailed))
+		return
 	}
 	c.JSON(http.StatusOK, res)
+	return
 }

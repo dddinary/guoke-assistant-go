@@ -108,3 +108,14 @@ func IfLikedPost(uid, pid int) bool {
 	}
 	return false
 }
+
+func FindPostLikesByPostId(pid int) ([]PostLike, error) {
+	var (
+		err			error
+		postLikes	[]PostLike
+	)
+	if err = db.Where("pid = ? AND deleted = ?", pid, 0).Find(&postLikes).Error; err != nil {
+		return nil, err
+	}
+	return postLikes, nil
+}

@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"guoke-helper-golang/constant"
 	"guoke-helper-golang/service"
 	"net/http"
 )
@@ -9,9 +10,7 @@ import (
 func GetLecture(c *gin.Context) {
 	lectures := service.GetLecture()
 	if lectures == nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "参数非法",
-		})
+		c.JSON(http.StatusBadRequest, constant.ErrResp(constant.ERROR))
 		return
 	}
 	c.JSON(http.StatusOK, lectures)

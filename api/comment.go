@@ -15,13 +15,16 @@ func CommentPost(c *gin.Context) {
 	content := c.DefaultQuery("content", "")
 	if content == "" || len(content) > config.AppConf.CommentMaxLen {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
 	}
-	uid := c.MustGet(UidKey).(int)
+	uid := c.MustGet(constant.ContextKeyUid).(int)
 	err := service.CommentPost(uid, pid, content)
 	if err != nil {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
 	}
 	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
+	return
 }
 
 func CommentComment(c *gin.Context) {
@@ -30,18 +33,21 @@ func CommentComment(c *gin.Context) {
 	content := c.DefaultQuery("content", "")
 	if content == "" || len(content) > config.AppConf.CommentMaxLen {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
 	}
-	uid := c.MustGet(UidKey).(int)
+	uid := c.MustGet(constant.ContextKeyUid).(int)
 	err := service.CommentComment(uid, pid, cid, content)
 	if err != nil {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
 	}
 	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
+	return
 }
 
 func LikeComment(c *gin.Context) {
 	cid := utils.ValidateInt(c.DefaultQuery("cid", ""), 10)
-	uid := c.MustGet(UidKey).(int)
+	uid := c.MustGet(constant.ContextKeyUid).(int)
 	err := service.LikeComment(uid, cid)
 	if err != nil {
 		logrus.Print(err)
@@ -52,7 +58,7 @@ func LikeComment(c *gin.Context) {
 
 func UnlikeComment(c *gin.Context) {
 	cid := utils.ValidateInt(c.DefaultQuery("cid", ""), 10)
-	uid := c.MustGet(UidKey).(int)
+	uid := c.MustGet(constant.ContextKeyUid).(int)
 	err := service.UnlikeComment(uid, cid)
 	if err != nil {
 		logrus.Print(err)
@@ -63,7 +69,7 @@ func UnlikeComment(c *gin.Context) {
 
 func DeleteComment(c *gin.Context) {
 	cid := utils.ValidateInt(c.DefaultQuery("cid", ""), 10)
-	uid := c.MustGet(UidKey).(int)
+	uid := c.MustGet(constant.ContextKeyUid).(int)
 	err := service.DeleteComment(uid, cid)
 	if err != nil {
 		logrus.Print(err)

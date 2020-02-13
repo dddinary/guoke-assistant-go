@@ -8,4 +8,5 @@ import (
 
 func Index(c *gin.Context) {
 	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
+	return
 }

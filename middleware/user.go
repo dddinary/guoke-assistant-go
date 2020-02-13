@@ -12,7 +12,7 @@ import (
 func GetReqUser() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		token := c.DefaultQuery("token", "")
+		token := c.DefaultQuery("_t", "")
 		var stu *model.Student
 		var uid int
 		var blocked bool

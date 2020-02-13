@@ -56,6 +56,7 @@ func init() {
 	}
 }
 
+// 因为不需要验证码，所以也就不需要openid标识不同的用户了，直接使用一次性的 client 就行
 func openidToClient(openid string) *req.Req {
 	cli, ok := userClients[openid]
 	if !ok || cli == nil{
@@ -82,7 +83,8 @@ func GetCaptcha(openid string) (img []byte) {
 
 func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interface{} {
 	var name, dpt, token string
-	cli := openidToClient(openid)
+	// cli := openidToClient(openid)
+	cli := req.New()
 	if !MainLoginWithoutCaptcha(cli, username, pwd) {
 		log.Printf("登录失败")
 		return nil
