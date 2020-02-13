@@ -10,7 +10,7 @@ import (
 
 func GetStudentInfo(c *gin.Context) {
 	uid := utils.ValidateInt(c.DefaultQuery("sid", ""), 10)
-	stuInfo, err := service.GetStudentById(uid)
+	stuInfo, err := service.GetStudentNoSecretInfoById(uid)
 	if err != nil {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
@@ -31,7 +31,7 @@ func GetStudentsInfoList(c *gin.Context) {
 			sidList = append(sidList, sid)
 		}
 	}
-	stuInfoMap, err := service.GetStudentsByIdList(sidList)
+	stuInfoMap, err := service.GetStudentsNoSecretInfoByIdList(sidList)
 	if err != nil {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return

@@ -35,7 +35,7 @@ func GetLikesByPostId(pid int) (map[int]interface{}, error) {
 	for _, postLike := range postLikes {
 		neededUidList = append(neededUidList, postLike.Uid)
 	}
-	stuInfoMap, err = GetStudentsByIdList(neededUidList)
+	stuInfoMap, err = GetStudentsNoSecretInfoByIdList(neededUidList)
 	if err != nil {
 		log.Printf("获取like列表出错: %+v\n", err)
 		return nil, err

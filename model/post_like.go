@@ -100,7 +100,7 @@ func IfLikedPost(uid, pid int) bool {
 		err      error
 		postLike PostLike
 	)
-	if err = db.Where("pid = ? AND uid = ?", pid, uid, &postLike).Error; err != nil {
+	if err = db.Where("pid = ? AND uid = ?", pid, uid).Find(&postLike).Error; err != nil {
 		return false
 	}
 	if postLike.Id > 0 && postLike.Deleted == 0 {

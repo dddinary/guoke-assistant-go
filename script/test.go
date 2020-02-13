@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"guoke-helper-golang/utils"
+	"guoke-helper-golang/model"
 	"log"
 )
 func main() {
 	log.Printf("#########################################")
-	for i := 0; i < 10; i++ {
-		fmt.Println("\"" + utils.BTGetWallPaperUrl() + "\",")
-	}
+	res := model.IfLikedPost(2, 1)
+	log.Println(res)
 }
 

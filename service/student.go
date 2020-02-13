@@ -24,7 +24,7 @@ func stuModelToMap(student *model.Student) map[string]string {
 	return res
 }
 
-func GetStudentById(sid int) (map[string]string, error) {
+func GetStudentNoSecretInfoById(sid int) (map[string]string, error) {
 	student, err := model.FindStudentById(sid)
 	if err != nil {
 		log.Printf("获取学生信息出错：%+v\n", err)
@@ -34,7 +34,7 @@ func GetStudentById(sid int) (map[string]string, error) {
 	return stuInfo, nil
 }
 
-func GetStudentsByIdList(idList []int) (map[int]interface{}, error) {
+func GetStudentsNoSecretInfoByIdList(idList []int) (map[int]interface{}, error) {
 	var(
 		err		error
 		res		map[int]interface{}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"guoke-helper-golang/config"
+	"guoke-helper-golang/constant"
 	"guoke-helper-golang/model"
 	"guoke-helper-golang/utils"
 )
@@ -39,11 +40,11 @@ func GetStaredPost(uid, pageIdx int) (map[string]interface{}, error) {
 
 func postsToRespMap(uid int, posts []model.Post) map[string]interface{} {
 	var (
+		neededUidList 	[]int
 		stuInfoMap		map[int]interface{}
 		postMapSlice	[]map[string]interface{}
 		res				map[string]interface{}
 	)
-	stuInfoMap		= make(map[int]interface{})
 	postMapSlice	= []map[string]interface{}{}
 	res				= make(map[string]interface{})
 
@@ -56,15 +57,12 @@ func postsToRespMap(uid int, posts []model.Post) map[string]interface{} {
 			postMap["liked"] = model.IfLikedPost(uid, post.Id)
 			postMap["stared"] = model.IfStared(uid, post.Id)
 		}
-		if post.Uid != 0 && post.Kind != 1{
-			_, ok := stuInfoMap[post.Uid]
-			if !ok {
-				stu, _ := model.FindStudentById(post.Uid)
-				stuInfoMap[stu.Id] = map[string]interface{}{"name": stu.Name, "avatar": stu.Avatar, "dpt": stu.Dpt}
-			}
+		if post.Uid != 0 && post.Kind != constant.PostKindAnonymous {
+			neededUidList = append(neededUidList, post.Uid)
 		}
 		postMapSlice = append(postMapSlice, postMap)
 	}
+	stuInfoMap, _ = GetStudentsNoSecretInfoByIdList(neededUidList)
 	res["students"] = stuInfoMap
 	res["posts"] = postMapSlice
 	return res
@@ -90,7 +88,9 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	postMap := utils.StructToMap(post)
 	postMap["liked"] = model.IfLikedPost(uid, post.Id)
 	postMap["stared"] = model.IfStared(uid, post.Id)
-	neededUidList = append(neededUidList, uid)
+	if post.Kind != constant.PostKindAnonymous {
+		neededUidList = append(neededUidList, post.Uid)
+	}
 	comments, err := model.FindCommentsByPostId(post.Id)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 		}
 		commentSlice = append(commentSlice, commentMap)
 		neededUidList = append(neededUidList, comment.Uid)
-		stuInfoMap, _ = GetStudentsByIdList(neededUidList)
+		stuInfoMap, _ = GetStudentsNoSecretInfoByIdList(neededUidList)
 	}
 	res["post"] = postMap
 	res["comments"] = commentSlice

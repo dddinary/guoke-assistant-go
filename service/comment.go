@@ -54,7 +54,7 @@ func GetCommentsByPostId(uid, pid int) (map[string]interface{}, error) {
 		if !ok {
 			neededUidList = append(neededUidList, comment.Uid)
 		}
-		stuInfoMap, _ = GetStudentsByIdList(neededUidList)
+		stuInfoMap, _ = GetStudentsNoSecretInfoByIdList(neededUidList)
 	}
 	res["comments"] = commentSlice
 	res["students"] = stuInfoMap

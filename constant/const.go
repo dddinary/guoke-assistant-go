@@ -11,6 +11,8 @@ const (
 	StudentStatusCommon = 0
 	StudentStatusBlocked = 1
 
+	PostKindAnonymous = 1
+
 	ContextKeyUid		= "reqUid"
 	ContextKeyBlocked	= "reqBlocked"
 )
