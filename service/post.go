@@ -104,8 +104,8 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 		}
 		commentSlice = append(commentSlice, commentMap)
 		neededUidList = append(neededUidList, comment.Uid)
-		stuInfoMap, _ = GetStudentsNoSecretInfoByIdList(neededUidList)
 	}
+	stuInfoMap, _ = GetStudentsNoSecretInfoByIdList(neededUidList)
 	res["post"] = postMap
 	res["comments"] = commentSlice
 	res["students"] = stuInfoMap
