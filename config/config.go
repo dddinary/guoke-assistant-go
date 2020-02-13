@@ -80,7 +80,7 @@ var (
 )
 
 func init() {
-	confFile := constant.ConfigFilePathDevelop
+	confFile := constant.ConfigFilePathRelease
 	for i := 0; i < 5; i++ {
 		if _, err := os.Stat(confFile); err == nil {
 			break

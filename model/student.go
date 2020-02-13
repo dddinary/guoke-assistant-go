@@ -189,7 +189,7 @@ func UpdateStudentBlockStatus(uid, status int) error {
 			trx.Rollback()
 		}
 	}()
-	trx.Where("uid = ? AND status = ?", uid, status).First(&student)
+	trx.Where("uid = ?", uid, status).First(&student)
 	if student.Id != uid || student.Status == status {
 		trx.Rollback()
 		return nil
