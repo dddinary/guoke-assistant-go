@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"guoke-helper-golang/api"
-	"guoke-helper-golang/middleware"
+	"guoke-assistant-go/api"
+	"guoke-assistant-go/middleware"
 )
 
 func InitRouterEngine() *gin.Engine {

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"guoke-helper-golang/model"
-	"guoke-helper-golang/utils"
+	"guoke-assistant-go/model"
+	"guoke-assistant-go/utils"
 	"log"
 )
 

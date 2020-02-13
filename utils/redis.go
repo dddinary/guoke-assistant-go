@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/go-redis/redis"
-	"guoke-helper-golang/config"
+	"guoke-assistant-go/config"
 )
 
 var RedisCli *redis.Client

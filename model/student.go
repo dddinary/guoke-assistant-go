@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
-	"guoke-helper-golang/config"
-	"guoke-helper-golang/constant"
-	"guoke-helper-golang/utils"
+	"guoke-assistant-go/config"
+	"guoke-assistant-go/constant"
+	"guoke-assistant-go/utils"
 	"log"
 	"time"
 )

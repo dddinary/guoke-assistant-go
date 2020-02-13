@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-	"guoke-helper-golang/constant"
+	"guoke-assistant-go/constant"
 	"log"
 	"os"
 )

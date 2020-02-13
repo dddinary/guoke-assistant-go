@@ -1,10 +1,10 @@
 package service
 
 import (
-	"guoke-helper-golang/config"
-	"guoke-helper-golang/constant"
-	"guoke-helper-golang/model"
-	"guoke-helper-golang/utils"
+	"guoke-assistant-go/config"
+	"guoke-assistant-go/constant"
+	"guoke-assistant-go/model"
+	"guoke-assistant-go/utils"
 )
 
 var pageSize int

@@ -1,7 +1,7 @@
 package job
 
 import (
-	"guoke-helper-golang/service"
+	"guoke-assistant-go/service"
 	"log"
 )
 

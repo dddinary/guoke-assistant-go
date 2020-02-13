@@ -1,8 +1,8 @@
 package service
 
 import (
-	"guoke-helper-golang/constant"
-	"guoke-helper-golang/model"
+	"guoke-assistant-go/constant"
+	"guoke-assistant-go/model"
 	"log"
 	"strconv"
 )

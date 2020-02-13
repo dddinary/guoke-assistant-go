@@ -4,7 +4,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"guoke-helper-golang/config"
+	"guoke-assistant-go/config"
 	"log"
 )
 

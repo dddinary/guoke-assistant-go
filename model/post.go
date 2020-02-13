@@ -3,7 +3,7 @@ package model
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
-	"guoke-helper-golang/config"
+	"guoke-assistant-go/config"
 	"time"
 )
 

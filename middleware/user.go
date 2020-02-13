@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"guoke-helper-golang/config"
-	"guoke-helper-golang/constant"
-	"guoke-helper-golang/model"
+	"guoke-assistant-go/config"
+	"guoke-assistant-go/constant"
+	"guoke-assistant-go/model"
 	"net/http"
 )
 

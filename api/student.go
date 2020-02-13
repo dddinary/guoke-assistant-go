@@ -2,9 +2,9 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"guoke-helper-golang/constant"
-	"guoke-helper-golang/service"
-	"guoke-helper-golang/utils"
+	"guoke-assistant-go/constant"
+	"guoke-assistant-go/service"
+	"guoke-assistant-go/utils"
 	"net/http"
 )
 

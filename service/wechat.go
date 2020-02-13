@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"guoke-helper-golang/config"
+	"guoke-assistant-go/config"
 	"io/ioutil"
 	"log"
 	"net/http"

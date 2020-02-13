@@ -2,7 +2,7 @@ package model
 
 import (
 	"errors"
-	"guoke-helper-golang/config"
+	"guoke-assistant-go/config"
 	"time"
 )
 

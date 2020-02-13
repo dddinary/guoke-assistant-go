@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/go-redis/redis"
 	jsoniter "github.com/json-iterator/go"
-	"guoke-helper-golang/constant"
-	"guoke-helper-golang/utils"
+	"guoke-assistant-go/constant"
+	"guoke-assistant-go/utils"
 	"log"
 	"time"
 )

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"guoke-helper-golang/model"
+	"guoke-assistant-go/model"
 	"log"
 )
 func main() {

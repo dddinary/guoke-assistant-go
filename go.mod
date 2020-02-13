@@ -1,4 +1,4 @@
-module guoke-helper-golang
+module guoke-assistant-go
 
 go 1.13
 

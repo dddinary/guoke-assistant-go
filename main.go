@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
-	"guoke-helper-golang/config"
-	"guoke-helper-golang/job"
-	"guoke-helper-golang/router"
+	"guoke-assistant-go/config"
+	"guoke-assistant-go/job"
+	"guoke-assistant-go/router"
 	"log"
 )
 
