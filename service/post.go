@@ -82,7 +82,7 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	res				= make(map[string]interface{})
 
 	post, err = model.FindPostById(pid)
-	if err != nil {
+	if err != nil || post == nil {
 		return nil, err
 	}
 	postMap := utils.StructToMap(post)

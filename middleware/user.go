@@ -13,16 +13,17 @@ func GetReqUser() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		token := c.DefaultQuery("_t", "")
-		var stu *model.Student
 		var uid int
 		var blocked bool
 		if token != "" && len(token) < 100 {
-			stu, _ = model.FindStudentByToken(token)
-			uid = stu.Id
-			if stu.Status == 1 {
-				blocked = true
-			} else {
-				blocked = false
+			student, _ := model.FindStudentByToken(token)
+			if student != nil {
+				uid = student.Id
+				if student.Status == 1 {
+					blocked = true
+				} else {
+					blocked = false
+				}
 			}
 		}
 		c.Set(constant.ContextKeyUid, uid)

@@ -15,18 +15,19 @@ func UnblockStudent(uid int) error {
 	return model.UpdateStudentBlockStatus(uid, constant.StudentStatusCommon)
 }
 
-func stuModelToMap(student *model.Student) map[string]string {
-	res := make(map[string]string)
+func stuModelToMap(student *model.Student) map[string]interface{} {
+	res := make(map[string]interface{})
 	res["id"] = strconv.Itoa(student.Id)
 	res["name"] = student.Name
 	res["dpt"] = student.Dpt
 	res["avatar"] = student.Avatar
+	res["status"] = student.Status
 	return res
 }
 
-func GetStudentNoSecretInfoById(sid int) (map[string]string, error) {
+func GetStudentNoSecretInfoById(sid int) (map[string]interface{}, error) {
 	student, err := model.FindStudentById(sid)
-	if err != nil {
+	if err != nil || student == nil {
 		log.Printf("获取学生信息出错：%+v\n", err)
 		return nil, err
 	}

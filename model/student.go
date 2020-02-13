@@ -142,7 +142,7 @@ func GetStudentByTokenFromRedis(token string) (*Student, error) {
 		return nil, err
 	}
 	err = jsoniter.UnmarshalFromString(studentStr, &student)
-	if err != nil || student.Token != token{
+	if err != nil || student.Token != token {
 		log.Printf("redis中token获取student反序列化出错：%v\n", err)
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func UpdateStudentBlockStatus(uid, status int) error {
 			trx.Rollback()
 		}
 	}()
-	trx.Where("uid = ?", uid, status).First(&student)
+	trx.Where("id = ?", uid).First(&student)
 	if student.Id != uid || student.Status == status {
 		trx.Rollback()
 		return nil
