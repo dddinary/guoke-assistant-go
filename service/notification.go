@@ -21,6 +21,7 @@ func GetOnesNotifications(uid, pageIdx int) (map[string]interface{}, error) {
 	var (
 		err				error
 		stuInfoMap		map[int]interface{}
+		postInfoMap		map[int]interface{}
 		notifications	[]model.Notification
 		res				map[string]interface{}
 	)
@@ -30,11 +31,15 @@ func GetOnesNotifications(uid, pageIdx int) (map[string]interface{}, error) {
 		return res, err
 	}
 	var neededUidList []int
+	var neededPidList []int
 	for _, item := range notifications {
 		neededUidList = append(neededUidList, item.Notifier)
+		neededPidList = append(neededPidList, item.Pid)
 	}
 	stuInfoMap, _ = GetStudentsNoSecretInfoByIdList(neededUidList)
+	postInfoMap, _ = getPostsContentAbstractionByPIdList(neededPidList)
 	res["students"] = stuInfoMap
+	res["postsAbstraction"] = postInfoMap
 	res["notifications"] = notifications
 	return res, nil
 }

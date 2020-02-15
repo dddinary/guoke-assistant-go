@@ -68,6 +68,24 @@ func postsToRespMap(uid int, posts []model.Post) map[string]interface{} {
 
 }
 
+func getPostsContentAbstractionByPIdList(pidList []int) (map[int]interface{}, error) {
+	res := make(map[int]interface{})
+	posts, err := model.FindPostsByIdList(pidList)
+	if err != nil {
+		return res, err
+	}
+	var abstraction string
+	for _, post := range posts {
+		if len(post.Content) < 20 {
+			abstraction = post.Content
+		} else {
+			abstraction = post.Content[:20]
+		}
+		res[post.Id] = abstraction
+	}
+	return res, nil
+}
+
 func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	var (
 		err				error

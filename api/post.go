@@ -106,13 +106,16 @@ func GetStaredPost(c *gin.Context) {
 func Publish(c *gin.Context) {
 	kind := utils.ValidateInt(c.DefaultQuery("kind", ""), 10)
 	content := c.DefaultQuery("content", "")
-	if content == "" || len(content) > constant.PostMaxLen {
-		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
-		return
-	}
 	images, ok := c.GetQueryArray("images")
 	if !ok {
 		images = []string{}
+	}
+	if content == "" && len(images) > 0 {
+		content = "发表图片"
+	}
+	if content == "" || len(content) > constant.PostMaxLen {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
 	}
 	uid := c.MustGet(constant.ContextKeyUid).(int)
 	err := service.AddPost(uid, content, kind, images)
