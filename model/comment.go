@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"guoke-assistant-go/config"
+	"guoke-assistant-go/constant"
 	"time"
 )
 
@@ -22,8 +23,9 @@ var ErrorCommentNotFound = errors.New("没找到相应的Comment")
 // 如果cid不为0就是二级评论，否则就是一级评论
 func AddComment(uid, pid, cid int, content string) error {
 	var (
-		err error
-		post Post
+		err				error
+		post			Post
+		originalComment	Comment
 	)
 	trx := db.Begin()
 	defer func() {
@@ -40,6 +42,13 @@ func AddComment(uid, pid, cid int, content string) error {
 		trx.Rollback()
 		return ErrorPostNotFound
 	}
+	if cid != 0 {
+		trx.First(&originalComment, cid)
+		if originalComment.Id == 0 || originalComment.Deleted == 1 {
+			trx.Rollback()
+			return ErrorCommentNotFound
+		}
+	}
 	comment := Comment{Pid:pid, Uid:uid, Cid:cid, Content:content, Like:0, CreatedAt:time.Now(), Deleted:0}
 	if err = trx.Create(&comment).Error; err != nil {
 		trx.Rollback()
@@ -50,6 +59,12 @@ func AddComment(uid, pid, cid int, content string) error {
 			trx.Rollback()
 			return err
 		}
+	}
+	// 给被评论的人发送通知
+	if cid == 0 {
+		_ = addNotificationInTrx(trx, pid, uid, post.Uid, constant.NotificationKindCommentPost)
+	} else {
+		_ = addNotificationInTrx(trx, pid, uid, originalComment.Uid, constant.NotificationKindCommentComment)
 	}
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()

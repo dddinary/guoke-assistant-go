@@ -199,6 +199,12 @@ func UpdateStudentBlockStatus(uid, status int) error {
 		trx.Rollback()
 		return err
 	}
+	// 给被禁用或者解禁的账户发通知
+	if status == constant.StudentStatusBlocked {
+		_ = addNotificationInTrx(trx, 0, 0, uid, constant.NotificationKindAdminBlock)
+	} else if status == constant.StudentStatusCommon {
+		_ = addNotificationInTrx(trx, 0, 0, uid, constant.NotificationKindAdminUnblock)
+	}
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()
 		return err

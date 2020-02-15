@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/jinzhu/gorm"
 	"guoke-assistant-go/constant"
 	"log"
 	"time"
@@ -16,25 +17,20 @@ type Notification struct {
 	CreatedAt	time.Time	`json:"created_at" gorm:"type:datetime"`
 }
 
+func addNotificationInTrx(trx *gorm.DB, pid, notifier, receiver, kind int) error {
+	notification := Notification{Pid:pid, Notifier:notifier, Receiver:receiver,
+		Kind:kind, Status:constant.NotificationStatusUnread, CreatedAt:time.Now()}
+	return trx.Create(&notification).Error
+}
+
 func AddNotification(pid, notifier, receiver, kind int) error {
 	var (
 		err				error
 		notification	Notification
 	)
-	trx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			trx.Rollback()
-		}
-	}()
 	notification = Notification{Pid:pid, Notifier:notifier, Receiver:receiver,
 		Kind:kind, Status:constant.NotificationStatusUnread, CreatedAt:time.Now()}
-	if err = trx.Create(&notification).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
-	if err = trx.Commit().Error; err != nil {
-		trx.Rollback()
+	if err = db.Create(&notification).Error; err != nil {
 		return err
 	}
 	return nil

@@ -65,7 +65,6 @@ func postsToRespMap(uid int, posts []model.Post) map[string]interface{} {
 	res["students"] = stuInfoMap
 	res["posts"] = postMapSlice
 	return res
-
 }
 
 func getPostsContentAbstractionByPIdList(pidList []int) (map[int]interface{}, error) {

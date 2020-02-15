@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"guoke-assistant-go/constant"
+	"time"
+)
 
 type PostLike struct {
 	Id 			int			`json:"id" gorm:"primary_key;AUTO_INCREMENT"`
@@ -50,6 +53,8 @@ func AddPostLike(uid, pid int) error {
 		trx.Rollback()
 		return err
 	}
+	// 给被赞的人发通知
+	_ = addNotificationInTrx(trx, post.Id, uid, post.Uid, constant.NotificationKindLikePost)
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()
 		return err
