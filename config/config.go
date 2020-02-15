@@ -14,9 +14,6 @@ type AppConfig struct {
 	Port 			string
 	Release			bool
 	Magic			string
-	PageSize		int
-	PostMaxLen		int
-	CommentMaxLen	int
 }
 
 type AdminConfig struct {

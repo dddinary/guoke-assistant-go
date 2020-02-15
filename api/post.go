@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"guoke-assistant-go/config"
 	"guoke-assistant-go/constant"
 	"guoke-assistant-go/service"
 	"guoke-assistant-go/utils"
@@ -107,7 +106,7 @@ func GetStaredPost(c *gin.Context) {
 func Publish(c *gin.Context) {
 	kind := utils.ValidateInt(c.DefaultQuery("kind", ""), 10)
 	content := c.DefaultQuery("content", "")
-	if content == "" || len(content) > config.AppConf.PostMaxLen {
+	if content == "" || len(content) > constant.PostMaxLen {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}

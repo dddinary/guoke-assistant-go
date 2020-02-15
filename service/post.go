@@ -1,7 +1,6 @@
 package service
 
 import (
-	"guoke-assistant-go/config"
 	"guoke-assistant-go/constant"
 	"guoke-assistant-go/model"
 	"guoke-assistant-go/utils"
@@ -10,7 +9,7 @@ import (
 var pageSize int
 
 func init() {
-	pageSize = config.AppConf.PageSize
+	pageSize = constant.PageSize
 }
 
 func GetNews(uid, kind, order, pageIdx int) (map[string]interface{}, error) {

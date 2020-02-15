@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/jinzhu/gorm"
 	"guoke-assistant-go/config"
+	"guoke-assistant-go/constant"
 	"time"
 )
 
@@ -119,7 +120,7 @@ func FindPostsByCondition(kind, order, pageIdx, pageSize int) ([]Post, error) {
 		posts	[]Post
 		handler *gorm.DB
 	)
-	if kind > 0 {
+	if kind != constant.PostKindAll {
 		handler = db.Where("kind = ? and deleted = ?", kind, 0)
 	} else {
 		handler = db.Where("deleted = ?", 0)

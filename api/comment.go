@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"guoke-assistant-go/config"
 	"guoke-assistant-go/constant"
 	"guoke-assistant-go/service"
 	"guoke-assistant-go/utils"
@@ -13,7 +12,7 @@ import (
 func CommentPost(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	content := c.DefaultQuery("content", "")
-	if content == "" || len(content) > config.AppConf.CommentMaxLen {
+	if content == "" || len(content) > constant.CommentMaxLen {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}
@@ -31,7 +30,7 @@ func CommentComment(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	cid := utils.ValidateInt(c.DefaultQuery("cid", ""), 10)
 	content := c.DefaultQuery("content", "")
-	if content == "" || len(content) > config.AppConf.CommentMaxLen {
+	if content == "" || len(content) > constant.CommentMaxLen {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}

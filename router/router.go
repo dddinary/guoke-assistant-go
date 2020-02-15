@@ -40,6 +40,10 @@ func InitRouterEngine() *gin.Engine {
 	needLogin.GET("/unstarPost", api.UnstarPost)
 	needLogin.GET("/deletePost", api.DeletePost)
 	needLogin.GET("/deleteComment", api.DeleteComment)
+	needLogin.GET("/messageCount", api.CountUnreadNotifications)
+	needLogin.GET("/getMessage", api.GetOnesNotifications)
+	needLogin.GET("/readMessage", api.MarkReadNotifications)
+	needLogin.GET("/deleteMessage", api.DeleteNotifications)
 
 	adminOnly := r.Group("/a", middleware.AdminOnly())
 
