@@ -21,12 +21,19 @@ func GetNews(uid, kind, order, pageIdx int) (map[string]interface{}, error) {
 }
 
 func GetUserPost(uid, wantedUid, pageIdx int) (map[string]interface{}, error) {
-
+	var canSeePosts []model.Post
 	posts, err := model.FindPostsByUid(wantedUid, pageIdx, pageSize)
 	if err != nil {
 		return nil, err
 	}
-	return postsToRespMap(uid, posts), nil
+	if uid != wantedUid {
+		for _, post := range posts {
+			if post.Kind != constant.PostKindAnonymous {
+				canSeePosts = append(canSeePosts, post)
+			}
+		}
+	}
+	return postsToRespMap(uid, canSeePosts), nil
 }
 
 func GetStaredPost(uid, pageIdx int) (map[string]interface{}, error) {
