@@ -1,3 +1,4 @@
 develop.yaml
 release.yaml
 .idea
+logs/*

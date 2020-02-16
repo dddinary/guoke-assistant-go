@@ -101,6 +101,9 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	if err != nil || post == nil {
 		return nil, err
 	}
+	if post.Deleted == 1 {
+		return nil, model.ErrorPostNotFound
+	}
 	postMap := utils.StructToMap(post)
 	postMap["liked"] = model.IfLikedPost(uid, post.Id)
 	postMap["stared"] = model.IfStared(uid, post.Id)

@@ -7,8 +7,8 @@ import (
 )
 
 func InitRouterEngine() *gin.Engine {
-	r := gin.Default()
-	r.Use(middleware.GetReqUser())
+	r := gin.New()
+	r.Use(gin.Recovery(), middleware.LoggerToFile(), middleware.GetReqUser())
 
 	r.GET("/", api.Index)
 	// r.GET("/getCaptcha", api.GetCaptcha)
