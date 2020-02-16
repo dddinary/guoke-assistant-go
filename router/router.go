@@ -51,5 +51,6 @@ func InitRouterEngine() *gin.Engine {
 	adminOnly.GET("/deleteComment", api.AdminDeleteComment)
 	adminOnly.GET("/blockStudent", api.AdminBlockStudent)
 	adminOnly.GET("/unblockStudent", api.AdminUnblockStudent)
+	adminOnly.GET("/notify", api.AdminNotification)
 	return r
 }

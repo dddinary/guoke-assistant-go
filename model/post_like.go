@@ -54,7 +54,7 @@ func AddPostLike(uid, pid int) error {
 		return err
 	}
 	// 给被赞的人发通知
-	_ = addNotificationInTrx(trx, post.Id, uid, post.Uid, constant.NotificationKindLikePost)
+	_ = addNotificationInTrx(trx, post.Id, uid, post.Uid, constant.NotificationKindLikePost, post.Content)
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()
 		return err

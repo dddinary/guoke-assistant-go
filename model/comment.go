@@ -62,9 +62,9 @@ func AddComment(uid, pid, cid int, content string) error {
 	}
 	// 给被评论的人发送通知
 	if cid == 0 {
-		_ = addNotificationInTrx(trx, pid, uid, post.Uid, constant.NotificationKindCommentPost)
+		_ = addNotificationInTrx(trx, pid, uid, post.Uid, constant.NotificationKindCommentPost, content)
 	} else {
-		_ = addNotificationInTrx(trx, pid, uid, originalComment.Uid, constant.NotificationKindCommentComment)
+		_ = addNotificationInTrx(trx, pid, uid, originalComment.Uid, constant.NotificationKindCommentComment, content)
 	}
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()

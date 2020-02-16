@@ -13,23 +13,24 @@ type Notification struct {
 	Notifier	int			`json:"notifier" gorm:"type:int"`
 	Receiver	int			`json:"receiver" gorm:"type:int"`
 	Kind		int			`json:"kind" gorm:"type:int"`
+	Content		string		`json:"content" gorm:"type:text"`
 	Status		int			`json:"status" gorm:"type:int"`
 	CreatedAt	time.Time	`json:"created_at" gorm:"type:datetime"`
 }
 
-func addNotificationInTrx(trx *gorm.DB, pid, notifier, receiver, kind int) error {
-	notification := Notification{Pid:pid, Notifier:notifier, Receiver:receiver,
-		Kind:kind, Status:constant.NotificationStatusUnread, CreatedAt:time.Now()}
+func addNotificationInTrx(trx *gorm.DB, pid, notifier, receiver, kind int, content string) error {
+	notification := Notification{Pid:pid, Notifier:notifier, Receiver:receiver, Kind:kind,
+		Content:content, Status:constant.NotificationStatusUnread, CreatedAt:time.Now()}
 	return trx.Create(&notification).Error
 }
 
-func AddNotification(pid, notifier, receiver, kind int) error {
+func AddNotification(pid, notifier, receiver, kind int, content string) error {
 	var (
 		err				error
 		notification	Notification
 	)
-	notification = Notification{Pid:pid, Notifier:notifier, Receiver:receiver,
-		Kind:kind, Status:constant.NotificationStatusUnread, CreatedAt:time.Now()}
+	notification = Notification{Pid:pid, Notifier:notifier, Receiver:receiver, Kind:kind,
+		Content:content, Status:constant.NotificationStatusUnread, CreatedAt:time.Now()}
 	if err = db.Create(&notification).Error; err != nil {
 		return err
 	}

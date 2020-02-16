@@ -63,3 +63,20 @@ func AdminUnblockStudent(c *gin.Context) {
 	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
 	return
 }
+
+func AdminNotification(c *gin.Context) {
+	uid := utils.ValidateInt(c.DefaultQuery("uid", ""), 10)
+	content := c.DefaultQuery("content", "")
+	if content == "" {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
+	err := service.AdminAddNotification(uid, content)
+	if err != nil {
+		logrus.Println(err)
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ERROR))
+		return
+	}
+	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
+	return
+}

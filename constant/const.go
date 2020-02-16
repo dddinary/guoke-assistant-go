@@ -31,6 +31,7 @@ const (
 	NotificationKindAdminDeleteComment	= 12
 	NotificationKindAdminBlock			= 13
 	NotificationKindAdminUnblock		= 14
+	NotificationAdminSay				= 15
 
 	NotificationStatusUnread			= 0
 	NotificationStatusRead				= 1
