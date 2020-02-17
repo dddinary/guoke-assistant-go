@@ -55,6 +55,9 @@ func postsToRespMap(uid int, posts []model.Post) map[string]interface{} {
 	res				= make(map[string]interface{})
 
 	for _, post := range posts {
+		if post.Kind == constant.PostKindAnonymous {
+			post.Uid = 0
+		}
 		postMap := utils.StructToMap(&post)
 		if uid == 0 {
 			postMap["liked"] = false
@@ -111,12 +114,14 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	if post.Deleted == 1 {
 		return nil, model.ErrorPostNotFound
 	}
+	if post.Kind == constant.PostKindAnonymous {
+		post.Uid = 0
+	} else {
+		neededUidList = append(neededUidList, post.Uid)
+	}
 	postMap := utils.StructToMap(post)
 	postMap["liked"] = model.IfLikedPost(uid, post.Id)
 	postMap["stared"] = model.IfStared(uid, post.Id)
-	if post.Kind != constant.PostKindAnonymous {
-		neededUidList = append(neededUidList, post.Uid)
-	}
 	comments, err := model.FindCommentsByPostId(post.Id)
 	if err != nil {
 		return nil, err
