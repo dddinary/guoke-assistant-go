@@ -26,11 +26,9 @@ func GetUserPost(uid, wantedUid, pageIdx int) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	if uid != wantedUid {
-		for _, post := range posts {
-			if post.Kind != constant.PostKindAnonymous {
-				canSeePosts = append(canSeePosts, post)
-			}
+	for _, post := range posts {
+		if post.Kind != constant.PostKindAnonymous || uid == wantedUid {
+			canSeePosts = append(canSeePosts, post)
 		}
 	}
 	return postsToRespMap(uid, canSeePosts), nil
