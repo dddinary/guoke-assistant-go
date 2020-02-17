@@ -36,11 +36,12 @@ func GetComingLectures() map[string][]Lecture {
 		return lectures
 	}
 	lectures = make(map[string][]Lecture)
-	// loc, _ := time.LoadLocation("Local")
+	loc, _ := time.LoadLocation("Local")
+	start := time.Date(2020, 1, 1, 0, 0, 0, 0, loc)
 	from := time.Now()
 	from = from.AddDate(0, 0, -1)
 	db.Where("start >= ? and category = ?", from, 2).Find(&hum)
-	db.Where("start >= ? and category = ?", from, 1).Find(&sci)
+	db.Where("start >= ? and category = ?", start, 1).Find(&sci)
 	lectures["humanity"] = hum
 	lectures["science"] = sci
 	_ = AddLecturesToRedis(lectures)
