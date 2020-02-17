@@ -97,12 +97,9 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	var (
 		err				error
 		post			*model.Post
-		neededUidList 	[]int
-		stuInfoMap		map[int]interface{}
-		commentSlice	[]map[string]interface{}
+		stuInfoMap		map[string]interface{}
 		res				map[string]interface{}
 	)
-	commentSlice	= []map[string]interface{}{}
 	res				= make(map[string]interface{})
 
 	post, err = model.FindPostById(pid)
@@ -115,29 +112,13 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	if post.Kind == constant.PostKindAnonymous {
 		post.Uid = 0
 	} else {
-		neededUidList = append(neededUidList, post.Uid)
+		stuInfoMap, _ = GetStudentNoSecretInfoById(post.Uid)
 	}
 	postMap := utils.StructToMap(post)
 	postMap["liked"] = model.IfLikedPost(uid, post.Id)
 	postMap["stared"] = model.IfStared(uid, post.Id)
-	comments, err := model.FindCommentsByPostId(post.Id)
-	if err != nil {
-		return nil, err
-	}
-	for _, comment := range comments {
-		commentMap := utils.StructToMap(&comment)
-		if comment.Cid == 0 {
-			commentMap["liked"] = false
-		} else {
-			commentMap["liked"] = model.IfLikedComment(uid, comment.Id)
-		}
-		commentSlice = append(commentSlice, commentMap)
-		neededUidList = append(neededUidList, comment.Uid)
-	}
-	stuInfoMap, _ = GetStudentsNoSecretInfoByIdList(neededUidList)
 	res["post"] = postMap
-	res["comments"] = commentSlice
-	res["students"] = stuInfoMap
+	res["student"] = stuInfoMap
 	return res, nil
 }
 

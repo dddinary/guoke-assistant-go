@@ -29,13 +29,14 @@ func CommentPost(c *gin.Context) {
 func CommentComment(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	cid := utils.ValidateInt(c.DefaultQuery("cid", ""), 10)
+	ruid := utils.ValidateInt(c.DefaultQuery("ruid", ""), 10)
 	content := c.DefaultQuery("content", "")
 	if content == "" || len(content) > constant.CommentMaxLen {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}
 	uid := c.MustGet(constant.ContextKeyUid).(int)
-	err := service.CommentComment(uid, pid, cid, content)
+	err := service.CommentComment(uid, pid, cid, ruid, content)
 	if err != nil {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return

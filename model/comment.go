@@ -12,6 +12,7 @@ type Comment struct {
 	Pid			int			`json:"pid" gorm:"type:int"`
 	Cid			int			`json:"cid" gorm:"type:int"`
 	Uid			int			`json:"uid" gorm:"type:int"`
+	Ruid		int			`json:"ruid" gorm:"type:int"`
 	Content		string		`json:"content" gorm:"type:text"`
 	Like		int			`json:"like" gorm:"type:int"`
 	CreatedAt	time.Time	`json:"created_at" gorm:"type:datetime"`
@@ -21,7 +22,7 @@ type Comment struct {
 var ErrorCommentNotFound = errors.New("没找到相应的Comment")
 
 // 如果cid不为0就是二级评论，否则就是一级评论
-func AddComment(uid, pid, cid int, content string) error {
+func AddComment(uid, pid, cid, ruid int, content string) error {
 	var (
 		err				error
 		post			Post
@@ -48,8 +49,10 @@ func AddComment(uid, pid, cid int, content string) error {
 			trx.Rollback()
 			return ErrorCommentNotFound
 		}
+	} else {
+		ruid = post.Uid
 	}
-	comment := Comment{Pid:pid, Uid:uid, Cid:cid, Content:content, Like:0, CreatedAt:time.Now(), Deleted:0}
+	comment := Comment{Pid:pid, Uid:uid, Cid:cid, Ruid:ruid, Content:content, Like:0, CreatedAt:time.Now(), Deleted:0}
 	if err = trx.Create(&comment).Error; err != nil {
 		trx.Rollback()
 		return err
@@ -64,7 +67,7 @@ func AddComment(uid, pid, cid int, content string) error {
 	if cid == 0 {
 		_ = addNotificationInTrx(trx, pid, uid, post.Uid, constant.NotificationKindCommentPost, content)
 	} else {
-		_ = addNotificationInTrx(trx, pid, uid, originalComment.Uid, constant.NotificationKindCommentComment, content)
+		_ = addNotificationInTrx(trx, pid, uid, ruid, constant.NotificationKindCommentComment, content)
 	}
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()

@@ -7,11 +7,11 @@ import (
 )
 
 func CommentPost(uid, pid int, content string) error {
-	return model.AddComment(uid, pid, 0, content)
+	return model.AddComment(uid, pid, 0, 0, content)
 }
 
-func CommentComment(uid, pid, cid int, content string) error {
-	return model.AddComment(uid, pid, cid, content)
+func CommentComment(uid, pid, cid, ruid int, content string) error {
+	return model.AddComment(uid, pid, cid, ruid, content)
 }
 
 func LikeComment(uid, cid int) error {
