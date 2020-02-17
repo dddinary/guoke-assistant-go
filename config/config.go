@@ -77,7 +77,7 @@ var (
 )
 
 func init() {
-	confFile := constant.ConfigFilePathRelease
+	confFile := constant.ConfigFilePathDevelop
 	for i := 0; i < 5; i++ {
 		if _, err := os.Stat(confFile); err == nil {
 			break

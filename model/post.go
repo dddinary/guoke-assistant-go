@@ -110,7 +110,7 @@ func FindPostsByIdList(idList []int) ([]Post, error) {
 
 var orderMap = map[int]string{
 	0: "created_at desc",
-	1: "like desc",
+	1: "'like' desc",
 	2: "comment desc",
 }
 
@@ -120,8 +120,10 @@ func FindPostsByCondition(kind, order, pageIdx, pageSize int) ([]Post, error) {
 		posts	[]Post
 		handler *gorm.DB
 	)
+	from := time.Now()
+	from = from.AddDate(0, 0, -8)
 	if kind != constant.PostKindAll {
-		handler = db.Where("kind = ? and deleted = ?", kind, 0)
+		handler = db.Where("kind = ? and deleted = ? and created_at >= ?", kind, 0, from)
 	} else {
 		handler = db.Where("deleted = ?", 0)
 	}
