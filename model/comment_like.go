@@ -106,7 +106,7 @@ func IfLikedComment(uid, cid int) bool {
 		err         error
 		commentLike CommentLike
 	)
-	if err = db.Where("cid = AND uid = ", cid, uid, &commentLike).Error; err != nil {
+	if err = db.Where("cid = ? AND uid = ?", cid, uid).First(&commentLike).Error; err != nil {
 		return false
 	}
 	if commentLike.Id > 0 && commentLike.Deleted == 0 {

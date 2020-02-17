@@ -85,7 +85,7 @@ func IfStared(uid, pid int) bool {
 	var (
 		star	Star
 	)
-	db.Where("pid = ? AND uid = ?", pid, uid, &star)
+	db.Where("pid = ? AND uid = ?", pid, uid).First(&star)
 	if star.Id > 0 && star.Deleted == 0 {
 		return true
 	}

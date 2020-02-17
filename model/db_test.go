@@ -5,9 +5,9 @@ import (
 )
 
 func TestSomething(t *testing.T) {
-	stu, err := FindStudentByToken("98c876002effd5ecd796d4a06da5766706a44c71")
-	if err != nil {
-		t.Log(err)
-	}
-	t.Log(stu)
+	var (
+		star	Star
+	)
+	db.Where("pid = ? AND uid = ?", 10, 2).Find(&star)
+	t.Logf("%+v\n", star)
 }
