@@ -36,8 +36,9 @@ func GetComingLectures() map[string][]Lecture {
 		return lectures
 	}
 	lectures = make(map[string][]Lecture)
-	loc, _ := time.LoadLocation("Local")
-	from := time.Date(2019, 12, 10, 0, 0, 0, 0, loc)
+	// loc, _ := time.LoadLocation("Local")
+	from := time.Now()
+	from = from.AddDate(0, 0, -1)
 	db.Where("start >= ? and category = ?", from, 2).Find(&hum)
 	db.Where("start >= ? and category = ?", from, 1).Find(&sci)
 	lectures["humanity"] = hum
