@@ -6,6 +6,7 @@ import (
 	"guoke-assistant-go/service"
 	"guoke-assistant-go/utils"
 	"net/http"
+	"strings"
 )
 
 func GetStudentInfo(c *gin.Context) {
@@ -19,10 +20,13 @@ func GetStudentInfo(c *gin.Context) {
 }
 
 func GetStudentsInfoList(c *gin.Context) {
-	sidStrList, ok := c.GetQueryArray("sid")
-	if !ok {
+	sidListStr:= c.DefaultQuery("sids", "")
+	var sidStrList []string
+	if sidListStr == "" || len(sidListStr) > 100 {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
+	} else {
+		sidStrList = strings.Split(sidListStr, ",")
 	}
 	var sidList []int
 	for _, sidStr := range sidStrList {

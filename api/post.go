@@ -7,6 +7,7 @@ import (
 	"guoke-assistant-go/service"
 	"guoke-assistant-go/utils"
 	"net/http"
+	"strings"
 )
 
 func GetNews(c *gin.Context) {
@@ -106,9 +107,10 @@ func GetStaredPost(c *gin.Context) {
 func Publish(c *gin.Context) {
 	kind := utils.ValidateInt(c.DefaultQuery("kind", ""), 10)
 	content := c.DefaultQuery("content", "")
-	images, ok := c.GetQueryArray("images")
-	if !ok {
-		images = []string{}
+	imagesStr := c.DefaultQuery("images", "")
+	var images []string
+	if imagesStr != "" && len(imagesStr) < 800 {
+		images = strings.Split(imagesStr, ",")
 	}
 	if content == "" && len(images) > 0 {
 		content = "发表图片"
