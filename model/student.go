@@ -89,7 +89,7 @@ func (student *Student) UpdateToken() string {
 	return token
 }
 
-func AddStudent(account, name, dpt, avatar, openid string) (string, error) {
+func AddStudent(account, name, dpt, avatar, openid string) (string, int, error) {
 	var (
 		err		error
 		student	Student
@@ -105,20 +105,20 @@ func AddStudent(account, name, dpt, avatar, openid string) (string, error) {
 		Where("account = ?", account).First(&student)
 	if student.Id != 0 {
 		trx.Rollback()
-		return "", ErrorStudentHasExist
+		return "", 0, ErrorStudentHasExist
 	}
 
 	token := genToken(openid)
 	student = Student{Account:account, Name:name, Dpt:dpt, Avatar:avatar, Openid:openid, Token:token}
 	if err = trx.Create(&student).Error; err != nil {
 		trx.Rollback()
-		return "", err
+		return "", 0, err
 	}
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()
-		return "", err
+		return "", 0, err
 	}
-	return token, nil
+	return token, student.Id, nil
 }
 
 func genToken(openid string) string {

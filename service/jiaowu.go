@@ -83,6 +83,7 @@ func GetCaptcha(openid string) (img []byte) {
 
 func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interface{} {
 	var name, dpt, token string
+	var uid int
 	// cli := openidToClient(openid)
 	cli := req.New()
 	if !MainLoginWithoutCaptcha(cli, username, pwd) {
@@ -99,8 +100,9 @@ func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interfac
 		if avatar == "" {
 			avatar  = utils.BTGetAvatarUrl()
 		}
-		token, _ = model.AddStudent(username, name, dpt, avatar, openid)
+		token, uid, _ = model.AddStudent(username, name, dpt, avatar, openid)
 	} else {
+		uid = stu.Id
 		name = stu.Name
 		dpt = stu.Dpt
 		avatar = stu.Avatar
@@ -114,6 +116,7 @@ func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interfac
 	cidList := getCourseList(cli)
 	courseDetail, timeTable := GetCourseDetailAndTimeTable(cidList)
 	return map[string]interface{}{
+		"id": uid,
 		"name": name,
 		"dpt": dpt,
 		"avatar": avatar,
