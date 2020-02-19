@@ -19,6 +19,9 @@ type Notification struct {
 }
 
 func addNotificationInTrx(trx *gorm.DB, pid, notifier, receiver, kind int, content string) error {
+	if notifier == receiver {
+		return nil
+	}
 	notification := Notification{Pid:pid, Notifier:notifier, Receiver:receiver, Kind:kind,
 		Content:content, Status:constant.NotificationStatusUnread, CreatedAt:time.Now()}
 	return trx.Create(&notification).Error
@@ -29,6 +32,9 @@ func AddNotification(pid, notifier, receiver, kind int, content string) error {
 		err				error
 		notification	Notification
 	)
+	if notifier == receiver {
+		return nil
+	}
 	notification = Notification{Pid:pid, Notifier:notifier, Receiver:receiver, Kind:kind,
 		Content:content, Status:constant.NotificationStatusUnread, CreatedAt:time.Now()}
 	if err = db.Create(&notification).Error; err != nil {
