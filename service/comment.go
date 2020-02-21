@@ -44,7 +44,7 @@ func GetCommentsByPostId(uid, pid int) (map[string]interface{}, error) {
 	var neededUidList []int
 	for _, comment := range comments {
 		commentMap := utils.StructToMap(&comment)
-		if comment.Cid == 0 || uid == 0 {
+		if uid == 0 {
 			commentMap["liked"] = false
 		} else {
 			commentMap["liked"] = model.IfLikedComment(uid, comment.Id)
