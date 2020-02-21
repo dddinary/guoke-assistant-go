@@ -152,16 +152,20 @@ func MainLoginWithoutCaptcha(cli *req.Req, username, password string) bool {
 	resp, err = cli.Post(loginUrl, data, headers)
 	if err != nil {
 		log.Printf("%s：%+v\n", errLogMsg, err)
+		return false
 	}
 	if err = resp.ToJSON(&loginRes); err != nil {
 		log.Printf("%s：%+v\n", errLogMsg, err)
+		return false
 	}
 	if !loginRes.F {
 		log.Printf("%s：%s", errLogMsg, loginRes.Msg)
+		return false
 	}
 	resp, err = cli.Get(loginRes.Msg)
 	if err != nil {
 		log.Printf("%s：%+v\n", errLogMsg, err)
+		return false
 	}
 	return true
 }
@@ -209,12 +213,12 @@ func findNameAndDpt(cli *req.Req) map[string]string {
 		log.Printf("获取姓名单位错误：split后不是两个字符串")
 		return nil
 	}
-	return map[string]string{"name": nameDpt[0], "dpt": nameDpt[1]}
+	return map[string]string{"name": nameDpt[1], "dpt": nameDpt[0]}
 }
 
 func siteLogin(cli *req.Req, siteName string) bool {
 	targetSite := sites[siteName]
-	idGetUrl := baseURL + "/portal/site/" + strconv.Itoa(int(targetSite.id))
+	idGetUrl := baseURL + "/portal/site/" + strconv.Itoa(targetSite.id)
 	resp, err := cli.Get(idGetUrl)
 	if err != nil {
 		log.Printf("登录站点%s失败：%v", siteName, err)
