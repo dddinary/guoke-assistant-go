@@ -7,6 +7,7 @@ const (
 	ERROR         = 500
 
 	ErrorInvalidParams = 400
+	ErrorUnauthorized = 401
 
 	ErrorLoginFailed		= 10001
 	ErrorGetCaptchaFailed	= 10002
@@ -20,6 +21,7 @@ var errMsgs = map[int]string {
 	ERROR:              "fail",
 
 	ErrorInvalidParams: "请求参数错误",
+	ErrorUnauthorized: "用户未认证或认证错误",
 
 	ErrorLoginFailed		: "登录失败",
 	ErrorGetCaptchaFailed	: "获取验证码失败",
