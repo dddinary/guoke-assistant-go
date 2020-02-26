@@ -7,6 +7,7 @@ import (
 	"guoke-assistant-go/service"
 	"guoke-assistant-go/utils"
 	"net/http"
+	"strings"
 )
 
 func CountUnreadNotifications(c *gin.Context) {
@@ -29,10 +30,10 @@ func GetOnesNotifications(c *gin.Context) {
 }
 
 func MarkReadNotifications(c *gin.Context) {
-	nidStrList, ok := c.GetQueryArray("nid")
-	if !ok {
-		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
-		return
+	nidStr := c.DefaultQuery("nid", "")
+	var nidStrList []string
+	if nidStr != "" && len(nidStr) < 100 {
+		nidStrList = strings.Split(nidStr, ",")
 	}
 	var nidList []int
 	for _, nidStr := range nidStrList {
@@ -51,10 +52,10 @@ func MarkReadNotifications(c *gin.Context) {
 }
 
 func DeleteNotifications(c *gin.Context) {
-	nidStrList, ok := c.GetQueryArray("nid")
-	if !ok {
-		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
-		return
+	nidStr := c.DefaultQuery("nid", "")
+	var nidStrList []string
+	if nidStr != "" && len(nidStr) < 100 {
+		nidStrList = strings.Split(nidStr, ",")
 	}
 	var nidList []int
 	for _, nidStr := range nidStrList {
