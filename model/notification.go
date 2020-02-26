@@ -82,7 +82,7 @@ func UpdateNotificationStatus(uid int, nidList []int, status int) error {
 		}
 	}()
 
-	trx.Set("gorm:query_option", "FOR UPDATE").Where("id in (?) AND uid = ?", nidList, uid).
+	trx.Set("gorm:query_option", "FOR UPDATE").Where("id in (?) AND receiver = ?", nidList, uid).
 		Find(&notifications)
 	if len(notifications) == 0 {
 		trx.Rollback()
