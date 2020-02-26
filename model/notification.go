@@ -62,7 +62,7 @@ func FindOnesNotifications(uid, pageIdx, pageSize int) ([]Notification, error) {
 		notifications	[]Notification
 	)
 	if err = db.Where("receiver = ? AND status != ?", uid, constant.NotificationStatusDeleted).
-		Order("created_at").Offset(pageIdx*pageSize).Limit(pageSize).Find(&notifications).Error; err != nil {
+		Order("created_at desc").Offset(pageIdx*pageSize).Limit(pageSize).Find(&notifications).Error; err != nil {
 		log.Printf("获取通知错误：%+v\n", err)
 		return nil, err
 	}
@@ -89,12 +89,12 @@ func UpdateNotificationStatus(uid int, nidList []int, status int) error {
 		return nil
 	}
 	for _, item := range notifications {
-		if item.Receiver == uid {
+		if item.Receiver == uid && item.Status != status{
 			targetNidList = append(targetNidList, item.Id)
 		}
 	}
-	if err = db.Table("notifications").Where("id IN (?)", targetNidList).
-		Updates(map[string]interface{}{"status": status}).Error; err != nil {
+	if err = trx.Model(Notification{}).Where("id IN (?)", targetNidList).
+		Update("status", status).Error; err != nil {
 		trx.Rollback()
 		return err
 	}
