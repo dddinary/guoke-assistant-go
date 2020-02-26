@@ -93,7 +93,7 @@ func UpdateNotificationStatus(uid int, nidList []int, status int) error {
 			targetNidList = append(targetNidList, item.Id)
 		}
 	}
-	if err = db.Table("notification").Where("id IN (?)", targetNidList).
+	if err = db.Table("notifications").Where("id IN (?)", targetNidList).
 		Updates(map[string]interface{}{"status": status}).Error; err != nil {
 		trx.Rollback()
 		return err
