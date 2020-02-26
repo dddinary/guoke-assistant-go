@@ -26,6 +26,10 @@ func GetReqUser() gin.HandlerFunc {
 				}
 			}
 		}
+		if uid == 0 && !noLoginLimiter.Allow() {
+			c.Abort()
+			c.JSON(http.StatusOK, constant.ErrResp(constant.Limited))
+		}
 		c.Set(constant.ContextKeyUid, uid)
 		c.Set(constant.ContextKeyBlocked, blocked)
 		c.Next()
@@ -40,7 +44,12 @@ func NeedLogin() gin.HandlerFunc {
 			c.Abort()
 			c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorUnauthorized))
 		} else {
-			c.Next()
+			if !isAllowed(uid) {
+				c.Abort()
+				c.JSON(http.StatusOK, constant.ErrResp(constant.Limited))
+			} else {
+				c.Next()
+			}
 		}
 	}
 }

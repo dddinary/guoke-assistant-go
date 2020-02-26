@@ -14,6 +14,7 @@ const (
 
 	CLOSING = 50001
 	BANNED = 50002
+	Limited = 5003
 )
 
 var errMsgs = map[int]string {
@@ -28,6 +29,7 @@ var errMsgs = map[int]string {
 
 	CLOSING: "该功能正在维护",
 	BANNED: "该用户已被限制",
+	Limited: "该用户已被限流",
 }
 
 

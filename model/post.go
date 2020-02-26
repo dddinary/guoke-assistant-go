@@ -110,7 +110,7 @@ func FindPostsByIdList(idList []int) ([]Post, error) {
 
 var orderMap = map[int]string{
 	0: "created_at desc",
-	1: "'like' desc",
+	1: "posts.like desc",
 	2: "comment desc",
 }
 
