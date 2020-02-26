@@ -38,7 +38,7 @@ func NeedLogin() gin.HandlerFunc {
 		uid := c.MustGet(constant.ContextKeyUid).(int)
 		if uid == 0 {
 			c.Abort()
-			c.JSON(http.StatusUnauthorized, constant.ErrResp(constant.ErrorInvalidParams))
+			c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		} else {
 			c.Next()
 		}
@@ -51,7 +51,7 @@ func AdminOnly() gin.HandlerFunc {
 		uid := c.MustGet(constant.ContextKeyUid).(int)
 		if uid != config.AdminConf.Uid {
 			c.Abort()
-			c.JSON(http.StatusUnauthorized, constant.ErrResp(constant.ErrorInvalidParams))
+			c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		} else {
 			c.Next()
 		}
@@ -64,7 +64,7 @@ func Blocker() gin.HandlerFunc {
 		blocked := c.MustGet(constant.ContextKeyBlocked).(bool)
 		if blocked {
 			c.Abort()
-			c.JSON(http.StatusUnauthorized, constant.ErrResp(constant.BANNED))
+			c.JSON(http.StatusOK, constant.ErrResp(constant.BANNED))
 		} else {
 			c.Next()
 		}

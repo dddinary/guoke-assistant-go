@@ -10,7 +10,7 @@ import (
 func GetLecture(c *gin.Context) {
 	lectures := service.GetLecture()
 	if lectures == nil {
-		c.JSON(http.StatusBadRequest, constant.ErrResp(constant.ERROR))
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ERROR))
 		return
 	}
 	c.JSON(http.StatusOK, lectures)
