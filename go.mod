@@ -22,6 +22,7 @@ require (
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/viper v1.6.2
 	github.com/tebeka/strftime v0.1.3 // indirect
+	github.com/tencentyun/qcloud-cos-sts-sdk v0.0.0-20200224031959-e05dcbd8be5a
 	golang.org/x/net v0.0.0-20190923162816-aa69164e4478 // indirect
 	golang.org/x/sys v0.0.0-20191010194322-b09406accb47 // indirect
 	golang.org/x/text v0.3.2 // indirect

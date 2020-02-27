@@ -64,6 +64,12 @@ func postsToRespMap(uid int, posts []model.Post) map[string]interface{} {
 			postMap["liked"] = model.IfLikedPost(uid, post.Id)
 			postMap["stared"] = model.IfStared(uid, post.Id)
 		}
+		images, err := model.FindImagesByPostId(post.Id)
+		if err != nil {
+			images = []string{}
+		}
+		postMap["imgCount"] = len(images)
+		postMap["images"] = images
 		if post.Uid != 0 && post.Kind != constant.PostKindAnonymous {
 			neededUidList = append(neededUidList, post.Uid)
 		}
@@ -114,9 +120,15 @@ func GetPostDetail(uid, pid int) (map[string]interface{}, error) {
 	} else {
 		stuInfoMap, _ = GetStudentNoSecretInfoById(post.Uid)
 	}
+	images, err := model.FindImagesByPostId(post.Id)
+	if err != nil {
+		images = []string{}
+	}
 	postMap := utils.StructToMap(post)
 	postMap["liked"] = model.IfLikedPost(uid, post.Id)
 	postMap["stared"] = model.IfStared(uid, post.Id)
+	postMap["imgCount"] = len(images)
+	postMap["images"] = images
 	res["post"] = postMap
 	res["student"] = stuInfoMap
 	return res, nil

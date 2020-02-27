@@ -1,12 +1,12 @@
 package main
 
 import (
-	"guoke-assistant-go/model"
+	"guoke-assistant-go/utils"
 	"log"
 )
 func main() {
 	log.Printf("#########################################")
-	res := model.IfLikedPost(2, 1)
+	res, _ := utils.GetCosCredential()
 	log.Println(res)
 }
 

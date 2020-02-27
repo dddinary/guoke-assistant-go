@@ -27,6 +27,8 @@ func InitRouterEngine() *gin.Engine {
 
 	needLogin := r.Group("/s", middleware.NeedLogin())
 
+	needLogin.GET("/tempCredential", middleware.NeedLogin(), api.GetCosCredential)
+
 	needLogin.GET("/publish", middleware.Blocker(), api.Publish)
 	needLogin.GET("/commentPost", middleware.Blocker(), api.CommentPost)
 	needLogin.GET("/commentComment", middleware.Blocker(), api.CommentComment)

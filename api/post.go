@@ -67,12 +67,21 @@ func GetPostLikes(c *gin.Context) {
 
 func GetPostImages(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
-	res, err := service.GetImagesByPostId(pid)
+	imgList, err := service.GetImagesByPostId(pid)
 	if err != nil {
 		logrus.Print(err)
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ERROR))
 		return
 	}
+	var count int
+	if imgList == nil {
+		count = 0
+	} else {
+		count = len(imgList)
+	}
+	res := map[string]interface{}{}
+	res["count"] = count
+	res["images"] = imgList
 	c.JSON(http.StatusOK, res)
 	return
 }
@@ -108,6 +117,8 @@ func Publish(c *gin.Context) {
 	kind := utils.ValidateInt(c.DefaultQuery("kind", ""), 10)
 	content := c.DefaultQuery("content", "")
 	imagesStr := c.DefaultQuery("images", "")
+	imagesStr = strings.Trim(imagesStr, " ")
+	imagesStr = strings.Trim(imagesStr, ",")
 	var images []string
 	if imagesStr != "" && len(imagesStr) < 800 {
 		images = strings.Split(imagesStr, ",")
@@ -115,7 +126,7 @@ func Publish(c *gin.Context) {
 	if content == "" && len(images) > 0 {
 		content = "发表图片"
 	}
-	if content == "" || len(content) > constant.PostMaxLen {
+	if content == "" || len(content) > constant.PostMaxLen || len(images) > 9 {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}
