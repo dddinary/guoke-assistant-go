@@ -123,7 +123,7 @@ func FindPostsByCondition(kind, order, pageIdx, pageSize int) ([]Post, error) {
 	from := time.Now()
 	from = from.AddDate(0, 0, -8)
 	if kind != constant.PostKindAll {
-		handler = db.Where("kind = ? and deleted = ? and created_at >= ?", kind, 0, from)
+		handler = db.Where("kind = ? and created_at >= ? and deleted = ?", kind, from, 0)
 	} else {
 		handler = db.Where("deleted = ?", 0)
 	}
