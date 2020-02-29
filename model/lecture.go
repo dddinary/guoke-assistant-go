@@ -125,7 +125,7 @@ func AddLecturesToRedis(lectures map[string][]Lecture) error {
 		log.Printf("讲座信息序列化出错：%v\n", err)
 		return err
 	}
-	err = utils.RedisCli.Set(constant.RedisKeyLecture, lecturesStr, 0).Err()
+	err = utils.RedisCli.Set(constant.RedisKeyLecture, lecturesStr, time.Hour * 72).Err()
 	if err != nil {
 		log.Printf("redis中写入讲座信息出错：%v\n", err)
 		return err

@@ -160,7 +160,7 @@ func AddTokenStudentToRedis(token string, student *Student) error {
 		log.Printf("redis中存入token-student序列化出错：%v\n", err)
 		return err
 	}
-	err = utils.RedisCli.Set(tokenKey, studentStr, 0).Err()
+	err = utils.RedisCli.Set(tokenKey, studentStr, time.Hour * 72).Err()
 	if err != nil {
 		log.Printf("edis中存入token-student出错：%v\n", err)
 		return err
