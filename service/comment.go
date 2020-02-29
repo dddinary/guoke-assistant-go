@@ -36,6 +36,10 @@ func GetCommentsByPostId(uid, pid int) (map[string]interface{}, error) {
 	commentSlice	= []map[string]interface{}{}
 	res				= make(map[string]interface{})
 
+	post, err := model.FindPostById(pid)
+	if err != nil || post.Deleted == 1 {
+		return nil, model.ErrorPostNotFound
+	}
 	comments, err := model.FindCommentsByPostId(pid)
 	if err != nil {
 		log.Printf("获取评论出错：%+v\n", err)

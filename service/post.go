@@ -56,6 +56,9 @@ func postsToRespMap(uid int, posts []model.Post) map[string]interface{} {
 		if post.Kind == constant.PostKindAnonymous {
 			post.Uid = 0
 		}
+		if post.Deleted == 1 {
+			continue
+		}
 		postMap := utils.StructToMap(&post)
 		if uid == 0 {
 			postMap["liked"] = false
