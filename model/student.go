@@ -212,3 +212,31 @@ func UpdateStudentBlockStatus(uid, status int) error {
 	_ = DeleteTokenStudentInRedis(student.Token)
 	return nil
 }
+
+func UpdateStudentAvatar(uid int, avatar string) error {
+	var (
+		err			error
+		student		Student
+	)
+	trx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			trx.Rollback()
+		}
+	}()
+	trx.Where("id = ?", uid).First(&student)
+	if student.Id != uid {
+		trx.Rollback()
+		return ErrorStudentNotFound
+	}
+	if err = trx.Model(&student).Update("avatar", avatar).Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	if err = trx.Commit().Error; err != nil {
+		trx.Rollback()
+		return err
+	}
+	_ = DeleteTokenStudentInRedis(student.Token)
+	return nil
+}

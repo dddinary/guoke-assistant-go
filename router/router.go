@@ -27,12 +27,12 @@ func InitRouterEngine() *gin.Engine {
 
 	needLogin := r.Group("/s", middleware.NeedLogin())
 
-	needLogin.GET("/tempCredential", middleware.NeedLogin(), api.GetCosCredential)
-
+	needLogin.GET("/tempCredential", middleware.Blocker(), api.GetCosCredential)
 	needLogin.GET("/publish", middleware.Blocker(), api.Publish)
 	needLogin.GET("/commentPost", middleware.Blocker(), api.CommentPost)
 	needLogin.GET("/commentComment", middleware.Blocker(), api.CommentComment)
 
+	needLogin.GET("/changeAvatar", api.ChangeAvatar)
 	needLogin.GET("/getStarPost", api.GetStaredPost)
 	needLogin.GET("/likePost", api.LikePost)
 	needLogin.GET("/unlikePost", api.UnlikePost)

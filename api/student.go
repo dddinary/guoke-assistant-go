@@ -42,3 +42,19 @@ func GetStudentsInfoList(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, stuInfoMap)
 }
+
+func ChangeAvatar(c *gin.Context) {
+	avatar := c.DefaultQuery("avatar", "")
+	if avatar == "" || len(avatar) > constant.PostMaxLen {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
+	uid := c.MustGet(constant.ContextKeyUid).(int)
+	err := service.UpdateStudentAvatar(uid, avatar)
+	if err != nil {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
+	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
+	return
+}

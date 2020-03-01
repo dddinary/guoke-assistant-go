@@ -30,6 +30,10 @@ func GetNews(c *gin.Context) {
 func GetPost(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if pid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	res, err := service.GetPostDetail(uid, pid)
 	if err != nil {
 		logrus.Print(err)
@@ -43,6 +47,10 @@ func GetPost(c *gin.Context) {
 func GetPostComments(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if pid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	res, err := service.GetCommentsByPostId(uid, pid)
 	if err != nil {
 		logrus.Print(err)
@@ -55,6 +63,10 @@ func GetPostComments(c *gin.Context) {
 
 func GetPostLikes(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
+	if pid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	res, err := service.GetLikesByPostId(pid)
 	if err != nil {
 		logrus.Print(err)
@@ -67,6 +79,10 @@ func GetPostLikes(c *gin.Context) {
 
 func GetPostImages(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
+	if pid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	imgList, err := service.GetImagesByPostId(pid)
 	if err != nil {
 		logrus.Print(err)
@@ -143,6 +159,10 @@ func Publish(c *gin.Context) {
 func LikePost(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if pid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	err := service.LikePost(uid, pid)
 	if err != nil {
 		logrus.Print(err)
@@ -156,6 +176,10 @@ func LikePost(c *gin.Context) {
 func UnlikePost(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if pid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	err := service.UnlikePost(uid, pid)
 	if err != nil {
 		logrus.Print(err)
@@ -169,6 +193,10 @@ func UnlikePost(c *gin.Context) {
 func StarPost(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if pid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	err := service.StarPost(uid, pid)
 	if err != nil {
 		logrus.Print(err)
@@ -182,6 +210,10 @@ func StarPost(c *gin.Context) {
 func UnstarPost(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if pid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	err := service.UnstarPost(uid, pid)
 	if err != nil {
 		logrus.Print(err)
@@ -195,6 +227,10 @@ func UnstarPost(c *gin.Context) {
 func DeletePost(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if pid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	err := service.DeletePost(uid, pid)
 	if err != nil {
 		logrus.Print(err)

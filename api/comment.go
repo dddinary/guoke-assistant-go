@@ -12,7 +12,7 @@ import (
 func CommentPost(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	content := c.DefaultQuery("content", "")
-	if content == "" || len(content) > constant.CommentMaxLen {
+	if content == "" || len(content) > constant.CommentMaxLen || pid <= 0 {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}
@@ -31,7 +31,7 @@ func CommentComment(c *gin.Context) {
 	cid := utils.ValidateInt(c.DefaultQuery("cid", ""), 10)
 	ruid := utils.ValidateInt(c.DefaultQuery("ruid", ""), 10)
 	content := c.DefaultQuery("content", "")
-	if content == "" || len(content) > constant.CommentMaxLen {
+	if content == "" || len(content) > constant.CommentMaxLen || pid <= 0 || cid <= 0 {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}
@@ -48,6 +48,10 @@ func CommentComment(c *gin.Context) {
 func LikeComment(c *gin.Context) {
 	cid := utils.ValidateInt(c.DefaultQuery("cid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if cid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	err := service.LikeComment(uid, cid)
 	if err != nil {
 		logrus.Print(err)
@@ -59,6 +63,10 @@ func LikeComment(c *gin.Context) {
 func UnlikeComment(c *gin.Context) {
 	cid := utils.ValidateInt(c.DefaultQuery("cid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if cid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	err := service.UnlikeComment(uid, cid)
 	if err != nil {
 		logrus.Print(err)
@@ -70,6 +78,10 @@ func UnlikeComment(c *gin.Context) {
 func DeleteComment(c *gin.Context) {
 	cid := utils.ValidateInt(c.DefaultQuery("cid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)
+	if cid <= 0 {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
 	err := service.DeleteComment(uid, cid)
 	if err != nil {
 		logrus.Print(err)

@@ -130,7 +130,7 @@ func FindPostsByCondition(kind, order, pageIdx, pageSize int) ([]Post, error) {
 		}
 	} else {
 		if kind != constant.PostKindAll {
-			handler = db.Where("kind = ? and deleted = ?", kind, from, 0)
+			handler = db.Where("kind = ? and deleted = ?", kind, 0)
 		} else {
 			handler = db.Where("deleted = ?", 0)
 		}

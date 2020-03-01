@@ -15,6 +15,10 @@ func UnblockStudent(uid int) error {
 	return model.UpdateStudentBlockStatus(uid, constant.StudentStatusCommon)
 }
 
+func UpdateStudentAvatar(uid int, avatar string) error {
+	return model.UpdateStudentAvatar(uid, avatar)
+}
+
 func stuModelToMap(student *model.Student) map[string]interface{} {
 	res := make(map[string]interface{})
 	res["id"] = strconv.Itoa(student.Id)
