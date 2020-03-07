@@ -6,7 +6,7 @@ import (
 )
 func main() {
 	log.Printf("#########################################")
-	res, _ := utils.GetCosCredential()
+	res := utils.SensFilter.Replace("日本av帝国", '*')
 	log.Println(res)
 }
 

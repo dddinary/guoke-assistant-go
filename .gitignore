@@ -2,3 +2,4 @@ develop.yaml
 release.yaml
 .idea
 logs/*
+sensitive_dict.txt

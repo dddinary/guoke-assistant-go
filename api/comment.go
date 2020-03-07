@@ -16,6 +16,7 @@ func CommentPost(c *gin.Context) {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}
+	content = utils.SensFilter.Replace(content, '*')
 	uid := c.MustGet(constant.ContextKeyUid).(int)
 	err := service.CommentPost(uid, pid, content)
 	if err != nil {
@@ -35,6 +36,7 @@ func CommentComment(c *gin.Context) {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}
+	content = utils.SensFilter.Replace(content, '*')
 	uid := c.MustGet(constant.ContextKeyUid).(int)
 	err := service.CommentComment(uid, pid, cid, ruid, content)
 	if err != nil {

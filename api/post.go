@@ -146,6 +146,7 @@ func Publish(c *gin.Context) {
 		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
 		return
 	}
+	content = utils.SensFilter.Replace(content, '*')
 	uid := c.MustGet(constant.ContextKeyUid).(int)
 	err := service.AddPost(uid, content, kind, images)
 	if err != nil {

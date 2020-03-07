@@ -5,7 +5,10 @@ const (
 	ConfigFilePathDevelop 				= "develop.yaml"
 	ConfigFilePathRelease 				= "release.yaml"
 
+	SensitiveDictPath					= "sensitive_dict.txt"
+
 	RedisKeyLecture 					= "LectureData"
+	RedisKeyAccessToken					= "AccessToken"
 	RedisKeyPrefixToken 				= "Token:"
 
 	PageSize							= 15

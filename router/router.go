@@ -12,7 +12,7 @@ func InitRouterEngine() *gin.Engine {
 
 	r.GET("/", api.Index)
 	// r.GET("/getCaptcha", api.GetCaptcha)
-	r.POST("/wxLogin", api.WxLogin)
+	// r.POST("/wxLogin", api.WxLogin)
 	r.POST("/loginCourse", api.LoginAndGetCourse)
 
 	r.GET("/getLecture", api.GetLecture)
