@@ -108,7 +108,7 @@ func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interfac
 		avatar = stu.Avatar
 		token = stu.UpdateToken()
 	}
-
+	utils.BotMsgNewUser(uid, name, dpt)
 	if !siteLogin(cli, siteJiaoWu) {
 		log.Printf("登录站点失败")
 		return nil
@@ -304,6 +304,7 @@ func UpdateLectureList() error {
 	)
 	cli := req.New()
 	if !MainLoginWithoutCaptcha(cli, config.AdminConf.Account, config.AdminConf.Pwd) {
+		utils.BotMsgWarning("获取讲座信息时登录失败")
 		err = errors.New("获取讲座信息时登录失败")
 		log.Printf("更新讲座信息出错：%v\n", err)
 		return err
@@ -367,7 +368,6 @@ func addLectures(cli *req.Req, lidList []int, category int) {
 	for _, lid := range lidList {
 		hasIt, err = LectureExists(lid)
 		if hasIt {
-			log.Printf("该记录已存在")
 			continue
 		}
 		url := fmt.Sprintf(urlPattern, lid)
@@ -426,6 +426,8 @@ func addLectures(cli *req.Req, lidList []int, category int) {
 		err = AddLecture(lid, name, category, dpt, startTime, endTime, venue, desc, pic)
 		if err != nil {
 			log.Printf("增加讲座信息出错：%+v\n", err)
+		} else {
+			utils.BotMsgLectureUpdate(lid, name)
 		}
 	}
 }

@@ -17,9 +17,10 @@ func main() {
 	c := cron.New()
 	id, err := c.AddJob("@hourly", job.LectureJob{})
 	if err != nil {
-		log.Fatalf("lecture job 启动失败: %+v\n", err)
+		log.Fatalf("lecture job 创建失败: %+v\n", err)
 	}
-	log.Printf("lecture job 启动 id=%+v", id)
+	log.Printf("lecture job 创建成功 id=%+v", id)
+	c.Start()
 
 	r := router.InitRouterEngine()
 	err = r.Run(":" + config.AppConf.Port)

@@ -50,6 +50,10 @@ type WeChatConfig struct {
 	AppSecret	string
 }
 
+type BotConfig struct {
+	Data	string
+}
+
 type LogConfig struct {
 	LogfilePath		string
 	LogfileName		string
@@ -62,6 +66,7 @@ type Config struct {
 	Redis	RedisConfig
 	Cos		CosConfig
 	WeChat	WeChatConfig
+	Bot		BotConfig
 	Log		LogConfig
 }
 
@@ -73,6 +78,7 @@ var (
 	RedisConf	*RedisConfig
 	CosConf		*CosConfig
 	WeChatConf	*WeChatConfig
+	BotConf		*BotConfig
 	LogConf		*LogConfig
 )
 
@@ -113,5 +119,6 @@ func updateConfig() {
 	RedisConf	= &allConf.Redis
 	CosConf		= &allConf.Cos
 	WeChatConf	= &allConf.WeChat
+	BotConf		= &allConf.Bot
 	LogConf		= &allConf.Log
 }

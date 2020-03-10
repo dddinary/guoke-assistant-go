@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"guoke-assistant-go/config"
 	"guoke-assistant-go/constant"
 	"guoke-assistant-go/model"
+	"guoke-assistant-go/utils"
 	"net/http"
 )
 
@@ -27,6 +29,7 @@ func GetReqUser() gin.HandlerFunc {
 			}
 		}
 		if uid == 0 && !noLoginLimiter.Allow() {
+			utils.BotMsgWarning("NoLoginLimiter: 触发限流开关")
 			c.Abort()
 			c.JSON(http.StatusOK, constant.ErrResp(constant.Limited))
 		}
@@ -45,6 +48,7 @@ func NeedLogin() gin.HandlerFunc {
 			c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorUnauthorized))
 		} else {
 			if !isAllowed(uid) {
+				utils.BotMsgWarning(fmt.Sprintf("NeedLoginLimiter: 触发限流开关uid: %d", uid))
 				c.Abort()
 				c.JSON(http.StatusOK, constant.ErrResp(constant.Limited))
 			} else {

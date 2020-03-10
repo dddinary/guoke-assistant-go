@@ -2,6 +2,7 @@ package job
 
 import (
 	"guoke-assistant-go/service"
+	"guoke-assistant-go/utils"
 	"log"
 )
 
@@ -14,6 +15,7 @@ func (lecJob LectureJob) Run() {
 		err		error
 	)
 	log.Println("开始更新讲座信息")
+	utils.BotMsgJobStart("讲座信息爬取")
 	err = service.UpdateLectureList()
 	if err != nil {
 		log.Printf("更新讲座列表出错：%+v\n", err)
