@@ -11,8 +11,8 @@ func BotMsgWarning(content string) {
 	AsyncMsgToBot("警报！！！！！！！！！", content)
 }
 
-func BotMsgNewUser(uid int, name, dpt string) {
-	AsyncMsgToBot("新用户", fmt.Sprintf("uid:%d 姓名：%s 院系：%s", uid, name, dpt))
+func BotMsgUserLogin(uid int, name, dpt string) {
+	AsyncMsgToBot("用户登录", fmt.Sprintf("uid:%d 姓名：%s 院系：%s", uid, name, dpt))
 }
 
 func BotMsgJobStart(jobName string) {

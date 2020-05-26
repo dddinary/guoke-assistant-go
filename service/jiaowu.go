@@ -108,7 +108,7 @@ func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interfac
 		avatar = stu.Avatar
 		token = stu.UpdateToken()
 	}
-	utils.BotMsgNewUser(uid, name, dpt)
+	utils.BotMsgUserLogin(uid, name, dpt)
 	if !siteLogin(cli, siteJiaoWu) {
 		log.Printf("登录站点失败")
 		return nil
@@ -256,7 +256,7 @@ func getCourseList(cli *req.Req) []int {
 	}
 	var cidList []int
 	for _, item := range match {
-		if item[3] == "二" {
+		if item[3] == "二" || item[3] == "三" {
 			cid, err := strconv.ParseInt(item[1], 10, 32)
 			if err != nil {
 				continue
