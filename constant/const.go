@@ -14,6 +14,7 @@ const (
 	PageSize							= 15
 	PostMaxLen							= 300
 	CommentMaxLen						= 300
+	SearchWordsMaxLen					= 30
 
 	StudentStatusCommon 				= 0
 	StudentStatusBlocked 				= 1

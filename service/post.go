@@ -42,6 +42,14 @@ func GetStaredPost(uid, pageIdx int) (map[string]interface{}, error) {
 	return postsToRespMap(uid, posts), nil
 }
 
+func SearchPost(words string, uid int, pageIdx int) (map[string]interface{}, error) {
+	posts, err := model.FindPostsByWords(words, pageIdx, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	return postsToRespMap(uid, posts), nil
+}
+
 func postsToRespMap(uid int, posts []model.Post) map[string]interface{} {
 	var (
 		neededUidList 	[]int

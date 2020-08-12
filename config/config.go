@@ -37,6 +37,10 @@ type RedisConfig struct {
 	AUTH	string
 }
 
+type ESConfig struct {
+	Address	string
+}
+
 type CosConfig struct {
 	AppId		string
 	SecretId	string
@@ -64,6 +68,7 @@ type Config struct {
 	Admin	AdminConfig
 	Mysql	MySQLConfig
 	Redis	RedisConfig
+	ES		ESConfig
 	Cos		CosConfig
 	WeChat	WeChatConfig
 	Bot		BotConfig
@@ -76,6 +81,7 @@ var (
 	AdminConf	*AdminConfig
 	MysqlConf	*MySQLConfig
 	RedisConf	*RedisConfig
+	ESConf		*ESConfig
 	CosConf		*CosConfig
 	WeChatConf	*WeChatConfig
 	BotConf		*BotConfig
@@ -117,6 +123,7 @@ func updateConfig() {
 	AdminConf	= &allConf.Admin
 	MysqlConf	= &allConf.Mysql
 	RedisConf	= &allConf.Redis
+	ESConf		= &allConf.ES
 	CosConf		= &allConf.Cos
 	WeChatConf	= &allConf.WeChat
 	BotConf		= &allConf.Bot

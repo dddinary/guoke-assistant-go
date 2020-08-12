@@ -5,6 +5,8 @@ import (
 	"github.com/jinzhu/gorm"
 	"guoke-assistant-go/config"
 	"guoke-assistant-go/constant"
+	"guoke-assistant-go/utils"
+	"log"
 	"time"
 )
 
@@ -51,6 +53,10 @@ func AddPost(uid int, content string, kind int, images []string) error {
 		trx.Rollback()
 		return err
 	}
+	err = utils.AddPostToES(post.Id, post.Uid, post.Content, post.CreatedAt, post.Deleted)
+	if err != nil {
+		log.Printf("把post加入Elasticsearch出错：%v\n", err)
+	}
 	return nil
 }
 
@@ -82,6 +88,9 @@ func DeletePost(uid, pid int) error {
 	if err = trx.Commit().Error; err != nil {
 		trx.Rollback()
 		return err
+	}
+	if err = utils.MarkPostInESDeleted(pid); err != nil {
+		log.Printf("把Elasticsearch中的Post标记删除出错：%v\n", err)
 	}
 	return nil
 }
@@ -173,5 +182,19 @@ func FindStaredPosts(uid, pageIdx, pageSize int) ([]Post, error) {
 		idList = append(idList, rec.Pid)
 	}
 	posts, err = FindPostsByIdList(idList)
+	return posts, err
+}
+
+func FindPostsByWords(words string, pageIdx, pageSize int)([]Post, error) {
+	var (
+		err		error
+		posts	[]Post
+		pidList	[]int
+	)
+	pidList, err = utils.SearchPostInES(words, pageIdx, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	posts, err = FindPostsByIdList(pidList)
 	return posts, err
 }

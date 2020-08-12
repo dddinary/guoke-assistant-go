@@ -44,6 +44,25 @@ func GetPost(c *gin.Context) {
 	return
 }
 
+func SearchPost(c *gin.Context) {
+	words := c.DefaultQuery("words", "")
+	pageIdx := utils.ValidateInt(c.DefaultQuery("page", ""), 10)
+	uid := c.MustGet(constant.ContextKeyUid).(int)
+	words = strings.Trim(words, " ")
+	if words == "" || len(words) > constant.SearchWordsMaxLen {
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
+	res, err := service.SearchPost(words, uid, pageIdx)
+	if err != nil {
+		logrus.Print(err)
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ERROR))
+		return
+	}
+	c.JSON(http.StatusOK, res)
+	return
+}
+
 func GetPostComments(c *gin.Context) {
 	pid := utils.ValidateInt(c.DefaultQuery("pid", ""), 10)
 	uid := c.MustGet(constant.ContextKeyUid).(int)

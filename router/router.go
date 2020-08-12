@@ -18,6 +18,7 @@ func InitRouterEngine() *gin.Engine {
 	r.GET("/getLecture", api.GetLecture)
 	r.GET("/getNews", api.GetNews)
 	r.GET("/getPost", api.GetPost)
+	r.GET("/searchPost", api.SearchPost)
 	r.GET("/getUserPost", api.GetUserPost)
 	r.GET("/getPostLikes", api.GetPostLikes)
 	r.GET("/getPostComments", api.GetPostComments)
