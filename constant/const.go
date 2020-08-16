@@ -19,6 +19,9 @@ const (
 	StudentStatusCommon 				= 0
 	StudentStatusBlocked 				= 1
 
+	LectureKindScience					= 1
+	LectureKindHumanity					= 2
+
 	PostKindAll							= 0 // 全部
 	PostKindNotice						= 1 // 通知活动
 	PostKindAskAndReply					= 2 // 果壳问问

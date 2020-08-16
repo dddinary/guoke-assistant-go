@@ -28,6 +28,7 @@ var ErrorLectureHasExist = errors.New("该lecture已存在")
 func GetComingLectures() map[string][]Lecture {
 	var (
 		err 		error
+		allLecture	[]Lecture
 		hum, sci	[]Lecture
 		lectures	map[string][]Lecture
 	)
@@ -37,11 +38,16 @@ func GetComingLectures() map[string][]Lecture {
 	}
 	lectures = make(map[string][]Lecture)
 	loc, _ := time.LoadLocation("Local")
-	start := time.Date(2020, 1, 1, 0, 0, 0, 0, loc)
-	from := time.Now()
-	from = from.AddDate(0, 0, -1)
-	db.Where("start >= ? and category = ?", from, 2).Find(&hum)
-	db.Where("start >= ? and category = ?", start, 1).Find(&sci)
+	from := time.Date(2020, 6, 1, 0, 0, 0, 0, loc)
+	// form := time.Now().AddDate(0, 0, -1)
+	db.Where("start >= ?", from).Order("start desc").Find(&allLecture)
+	for _, lec := range allLecture {
+		if lec.Category == constant.LectureKindHumanity {
+			hum = append(hum, lec)
+		} else if lec.Category == constant.LectureKindScience {
+			sci = append(sci, lec)
+		}
+	}
 	lectures["humanity"] = hum
 	lectures["science"] = sci
 	_ = AddLecturesToRedis(lectures)

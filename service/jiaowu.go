@@ -143,12 +143,14 @@ func MainLoginWithoutCaptcha(cli *req.Req, username, password string) bool {
 	data := req.Param{
 		"username": username,
 		"password": password,
+		"remember": "undefined",
 	}
 	headers := req.Header{
 		"X-Requested-With": "XMLHttpRequest",
 		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36",
+		"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
 	}
-	loginUrl := "http://onestop.ucas.edu.cn/Ajax/Login/0"
+	loginUrl := "https://onestop.ucas.edu.cn/Ajax/Login/0"
 	resp, err = cli.Post(loginUrl, data, headers)
 	if err != nil {
 		log.Printf("%s：%+v\n", errLogMsg, err)
@@ -232,7 +234,7 @@ func siteLogin(cli *req.Req, siteName string) bool {
 		return false
 	}
 	identity := match[0][1]
-	siteUrl := targetSite.loginUrl + "?Identity=" + identity + "&roleId=" + strconv.Itoa(int(targetSite.roleId))
+	siteUrl := targetSite.loginUrl + "?Identity=" + identity + "&roleId=" + strconv.Itoa(targetSite.roleId)
 	_, err = cli.Get(siteUrl)
 	if err != nil {
 		log.Printf("登录站点%s失败：%v", siteName, err)

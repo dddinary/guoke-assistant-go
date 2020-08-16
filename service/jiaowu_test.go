@@ -3,5 +3,5 @@ package service
 import "testing"
 
 func TestLoginAndGetCourse(t *testing.T) {
-	t.Log(GetCourseDetailAndTimeTable([]int{164707, 174042}))
+	t.Log(LoginAndGetCourse("", "dddinary@163.com", "tobeno.1", ""))
 }
