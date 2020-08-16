@@ -29,7 +29,6 @@ func GetComingLectures() map[string][]Lecture {
 	var (
 		err 		error
 		allLecture	[]Lecture
-		hum, sci	[]Lecture
 		lectures	map[string][]Lecture
 	)
 	lectures, err = GetLecturesFromRedis()
@@ -41,6 +40,8 @@ func GetComingLectures() map[string][]Lecture {
 	from := time.Date(2020, 6, 1, 0, 0, 0, 0, loc)
 	// form := time.Now().AddDate(0, 0, -1)
 	db.Where("start >= ?", from).Order("start desc").Find(&allLecture)
+	hum := make([]Lecture, 0)
+	sci := make([]Lecture, 0)
 	for _, lec := range allLecture {
 		if lec.Category == constant.LectureKindHumanity {
 			hum = append(hum, lec)
