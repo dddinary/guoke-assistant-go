@@ -251,14 +251,14 @@ func getCourseList(cli *req.Req) []int {
 	}
 	body := resp.String()
 	body = strings.ReplaceAll(body, "\n", "")
-	re := regexp.MustCompile(`/courseplan/(\d+)"(.*?)第(.*?)学期`)
+	re := regexp.MustCompile(`/courseplan/(\d+)"(.*?)2021学年\(秋\)第(.*?)学期`)
 	match := re.FindAllStringSubmatch(body, -1)
 	if len(match) < 1 || len(match[0]) < 2 {
 		return nil
 	}
 	var cidList []int
 	for _, item := range match {
-		if item[3] == "二" || item[3] == "三" {
+		if item[3] == "一" {
 			cid, err := strconv.ParseInt(item[1], 10, 32)
 			if err != nil {
 				continue
@@ -342,7 +342,7 @@ func GetPageList(cli *req.Req, reqUrl string, pageNum int) []int {
 		return lidList
 	}
 	body := resp.String()
-	re := regexp.MustCompile(`/subject/(\d+)/view`)
+	re := regexp.MustCompile(`/subject/(\d+)/(.*?)iew`)
 	match := re.FindAllStringSubmatch(body, -1)
 	for _, matchList := range match {
 		lid, _ := strconv.Atoi(matchList[1])
