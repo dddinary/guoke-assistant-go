@@ -111,7 +111,7 @@ func FindPostsByIdList(idList []int) ([]Post, error) {
 		err		error
 		posts	[]Post
 	)
-	if err = db.Where("id in (?)", idList).Find(&posts).Error; err != nil {
+	if err = db.Where("id in (?)", idList).Order("created_at desc").Find(&posts).Error; err != nil {
 		return nil, err
 	}
 	return posts, nil
