@@ -5,8 +5,12 @@ import (
 	"time"
 )
 
-func GetLecture() map[string][]model.Lecture {
+func GetComingLectures() map[string][]model.Lecture {
 	return model.GetComingLectures()
+}
+
+func GetLecture(lid int) (model.Lecture, error) {
+	return model.GetLecture(lid)
 }
 
 func AddLecture(lid int, name string, category int, dpt string, start, end time.Time, venue, desc, pic string) error {

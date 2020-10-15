@@ -39,7 +39,7 @@ func GetComingLectures() map[string][]Lecture {
 	// loc, _ := time.LoadLocation("Local")
 	// from := time.Date(2020, 6, 1, 0, 0, 0, 0, loc)
 	from := time.Now().AddDate(0, 0, -1)
-	db.Where("start >= ?", from).Order("start desc").Find(&allLecture)
+	db.Where("start >= ?", from).Order("start asc").Find(&allLecture)
 	hum := make([]Lecture, 0)
 	sci := make([]Lecture, 0)
 	for _, lec := range allLecture {
@@ -53,6 +53,15 @@ func GetComingLectures() map[string][]Lecture {
 	lectures["science"] = sci
 	_ = AddLecturesToRedis(lectures)
 	return lectures
+}
+
+func GetLecture(lid int) (Lecture, error) {
+	var (
+		err		error
+		lecture	Lecture
+	)
+	err = db.Where("lid = ?", lid).First(&lecture).Error
+	return lecture, err
 }
 
 func AddLecture(lid int, name string, category int, dpt string, start, end time.Time, venue, desc, pic string) error {

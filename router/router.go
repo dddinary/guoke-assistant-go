@@ -15,6 +15,7 @@ func InitRouterEngine() *gin.Engine {
 	// r.POST("/wxLogin", api.WxLogin)
 	r.POST("/loginCourse", api.LoginAndGetCourse)
 
+	r.GET("/getLectures", api.GetComingLectures)
 	r.GET("/getLecture", api.GetLecture)
 	r.GET("/getNews", api.GetNews)
 	r.GET("/getPost", api.GetPost)
