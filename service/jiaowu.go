@@ -269,8 +269,8 @@ func getCourseList(cli *req.Req) []int {
 	return cidList
 }
 
-func GetCourseDetailAndTimeTable(cidList []int) (map[int]interface{}, [21][8][]interface{}) {
-	var table [21][8][]interface{}
+func GetCourseDetailAndTimeTable(cidList []int) (map[int]interface{}, [30][8][]interface{}) {
+	var table [30][8][]interface{}
 	for i := range table {
 		for j := range table[i] {
 			table[i][j] = []interface{}{}
