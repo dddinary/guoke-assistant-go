@@ -1,6 +1,7 @@
 package service
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"github.com/imroc/req"
@@ -86,6 +87,12 @@ func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interfac
 	var uid int
 	// cli := openidToClient(openid)
 	cli := req.New()
+	cli.SetClient(&http.Client{
+		Timeout: 10 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	})
 	if !MainLoginWithoutCaptcha(cli, username, pwd) {
 		log.Printf("登录失败")
 		return nil
