@@ -10,6 +10,7 @@ import (
 	"guoke-assistant-go/utils"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"regexp"
 	"strconv"
 	"strings"
@@ -87,11 +88,13 @@ func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interfac
 	var uid int
 	// cli := openidToClient(openid)
 	cli := req.New()
+	jar, _ := cookiejar.New(nil)
 	cli.SetClient(&http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
+		Jar: jar,
 	})
 	if !MainLoginWithoutCaptcha(cli, username, pwd) {
 		log.Printf("登录失败")
@@ -227,7 +230,7 @@ func findNameAndDpt(cli *req.Req) map[string]string {
 
 func siteLogin(cli *req.Req, siteName string) bool {
 	targetSite := sites[siteName]
-	idGetUrl := baseURL + "/portal/site/" + strconv.Itoa(targetSite.id)
+	idGetUrl := baseURL + "/portal/site/" + strconv.Itoa(targetSite.id) + "/" + strconv.Itoa(targetSite.roleId)
 	resp, err := cli.Get(idGetUrl)
 	if err != nil {
 		log.Printf("登录站点%s失败：%v", siteName, err)
