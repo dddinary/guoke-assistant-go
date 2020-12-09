@@ -315,6 +315,14 @@ func UpdateLectureList() error {
 		err		error
 	)
 	cli := req.New()
+	jar, _ := cookiejar.New(nil)
+	cli.SetClient(&http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+		Jar: jar,
+	})
 	if !MainLoginWithoutCaptcha(cli, config.AdminConf.Account, config.AdminConf.Pwd) {
 		utils.BotMsgWarning("获取讲座信息时登录失败")
 		err = errors.New("获取讲座信息时登录失败")
