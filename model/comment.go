@@ -50,7 +50,7 @@ func AddComment(uid, pid, cid, ruid int, content string) error {
 			return ErrorCommentNotFound
 		}
 	} else {
-		ruid = post.Uid
+		ruid = originalComment.Uid
 	}
 	comment := Comment{Pid:pid, Uid:uid, Cid:cid, Ruid:ruid, Content:content, Like:0, CreatedAt:time.Now(), Deleted:0}
 	if err = trx.Create(&comment).Error; err != nil {
