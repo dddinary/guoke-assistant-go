@@ -125,6 +125,9 @@ func LoginAndGetCourse(openid, username, pwd, avatar string) map[string]interfac
 	}
 	cidList := getCourseList(cli)
 	courseDetail, timeTable := GetCourseDetailAndTimeTable(cidList)
+	if cidList == nil {
+		cidList = make([]int, 0)
+	}
 	return map[string]interface{}{
 		"id": uid,
 		"name": name,
@@ -268,7 +271,7 @@ func getCourseList(cli *req.Req) []int {
 	}
 	var cidList []int
 	for _, item := range match {
-		if item[3] == "一" {
+		if item[3] == "二" {
 			cid, err := strconv.ParseInt(item[1], 10, 32)
 			if err != nil {
 				continue
