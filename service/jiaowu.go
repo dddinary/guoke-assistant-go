@@ -261,7 +261,7 @@ func getCourseList(cli *req.Req) []int {
 	}
 	body := resp.String()
 	body = strings.ReplaceAll(body, "\n", "")
-	re := regexp.MustCompile(`/courseplan/(\d+)"(.*?)2021学年\(秋\)第(.*?)学期`)
+	re := regexp.MustCompile(`/courseplan/(\d+)"(.*?)2021学年\(春\)第(.*?)学期`)
 	match := re.FindAllStringSubmatch(body, -1)
 	if len(match) < 1 || len(match[0]) < 2 {
 		return nil
