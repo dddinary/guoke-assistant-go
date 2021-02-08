@@ -6,6 +6,7 @@ import (
 	"guoke-assistant-go/config"
 	"guoke-assistant-go/constant"
 	"guoke-assistant-go/model"
+	"guoke-assistant-go/service"
 	"guoke-assistant-go/utils"
 	"net/http"
 )
@@ -27,6 +28,9 @@ func GetReqUser() gin.HandlerFunc {
 					blocked = false
 				}
 			}
+		}
+		if uid != 0 {
+			service.SetUserDAU(uid)
 		}
 		if uid == 0 && !noLoginLimiter.Allow() {
 			utils.BotMsgWarning("NoLoginLimiter: 触发限流开关")

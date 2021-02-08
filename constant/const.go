@@ -10,6 +10,8 @@ const (
 	RedisKeyLecture 					= "LectureData"
 	RedisKeyAccessToken					= "AccessToken"
 	RedisKeyPrefixToken 				= "Token:"
+	RedisKeyPrefixUV					= "UV-"
+	RedisKeyPrefixAU					= "AU-"
 
 	PageSize							= 15
 	PostMaxLen							= 300

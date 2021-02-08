@@ -8,6 +8,8 @@ import (
 	"guoke-assistant-go/service"
 	"guoke-assistant-go/utils"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 func AdminDeletePost(c *gin.Context) {
@@ -78,5 +80,38 @@ func AdminNotification(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, constant.ErrResp(constant.SUCCESS))
+	return
+}
+
+func AdminGetDAU(c *gin.Context) {
+	dayStr := utils.ValidateInt(c.DefaultQuery("day", ""), 8)
+	day, err := time.Parse("20060102", strconv.Itoa(dayStr))
+	if err != nil {
+		logrus.Println("Here is :", err)
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
+	dau := service.GetDAU(day)
+	c.JSON(http.StatusOK, map[string]int64{"dau": dau})
+	return
+}
+
+func AdminGetIntervalDAU(c *gin.Context) {
+	startStr := utils.ValidateInt(c.DefaultQuery("start", ""), 8)
+	endStr := utils.ValidateInt(c.DefaultQuery("end", ""), 8)
+	dayStart, err := time.Parse("20060102", strconv.Itoa(startStr))
+	if err != nil {
+		logrus.Println(err)
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
+	dayEnd, err := time.Parse("20060102", strconv.Itoa(endStr))
+	if err != nil {
+		logrus.Println(err)
+		c.JSON(http.StatusOK, constant.ErrResp(constant.ErrorInvalidParams))
+		return
+	}
+	aus := service.GetIntervalAU(dayStart, dayEnd)
+	c.JSON(http.StatusOK, map[string]int64{"aus": aus})
 	return
 }

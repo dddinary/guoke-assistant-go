@@ -56,5 +56,8 @@ func InitRouterEngine() *gin.Engine {
 	adminOnly.GET("/blockStudent", api.AdminBlockStudent)
 	adminOnly.GET("/unblockStudent", api.AdminUnblockStudent)
 	adminOnly.GET("/notify", api.AdminNotification)
+
+	adminOnly.GET("/dau", api.AdminGetDAU)
+	adminOnly.GET("/aus", api.AdminGetIntervalDAU)
 	return r
 }
