@@ -55,7 +55,8 @@ type WeChatConfig struct {
 }
 
 type BotConfig struct {
-	Data	string
+	Feishu		string
+	Dingding	string
 }
 
 type LogConfig struct {

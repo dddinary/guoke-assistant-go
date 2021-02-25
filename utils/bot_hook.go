@@ -28,15 +28,29 @@ func AsyncMsgToBot(title, text string) {
 }
 
 func MsgToBot(title, text string) {
+	var err error
+	header := req.Header{
+		"Content-Type": "application/json",
+	}
 	data := map[string]string{
 		"title": title,
 		"text": text,
 	}
-	header := req.Header{
-		"Content-Type": "application/json",
+
+	feishuBotHook := config.BotConf.Feishu
+	_, err = req.Post(feishuBotHook, req.BodyJSON(data), header)
+	if err != nil {
+		log.Println(err)
 	}
-	botHook := config.BotConf.Data
-	_, err := req.Post(botHook, req.BodyJSON(data), header)
+
+	ddData := map[string]interface{} {
+		"msgtype": "text",
+		"text": map[string]string {
+			"content": "【果壳助手】\n" + title + ":" + text + "",
+		},
+	}
+	dingdingBotHook := config.BotConf.Dingding
+	_, err = req.Post(dingdingBotHook, req.BodyJSON(ddData), header)
 	if err != nil {
 		log.Println(err)
 	}
